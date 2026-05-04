@@ -60,7 +60,7 @@ public class EclipseNebula extends World {
 
         Inventory inventory1 = new BasicInventory();
         inventory1.add(new Flask());
-        // BEHOLD, LOCAL MULTIPLAYER!!!
+        // BEHOLD, LOCAL MULTIPLAYER!!!!
         ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, inventory1);
         ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, inventory1);
         ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, inventory1);

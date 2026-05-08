@@ -1,21 +1,43 @@
-    package game.doors;
+package game.doors;
 
-    import edu.monash.fit2099.engine.actors.Actor;
-    import edu.monash.fit2099.engine.positions.Location;
+import edu.monash.fit2099.engine.actors.Actor;
+import edu.monash.fit2099.engine.positions.Location;
+
+/**
+ * A contract for grounds that can be unlocked.
+ *
+ * Unlockable grounds define their locked state, required clearance level, and
+ * any effect that should occur when they are successfully unlocked.
+ *
+ * @author Tan Hong Sze
+ * @version 1.0
+ */
+public interface Unlockable {
 
     /**
-     * A contract for grounds that can be unlocked.
-     *
-     * @author Tan Hong Sze
-     * @version 1.0
+     * Unlocks the ground.
      */
-    public interface Unlockable {
+    void unlock();
 
-        void unlock();
+    /**
+     * Returns whether the ground has already been unlocked.
+     *
+     * @return true if unlocked
+     */
+    boolean isUnlocked();
 
-        boolean isUnlocked();
+    /**
+     * Returns the clearance level required to unlock this ground.
+     *
+     * @return required clearance level
+     */
+    ClearanceLevel getRequiredLevel();
 
-        ClearanceLevel getRequiredLevel();
-
-        void applyEffect(Actor actor, Location doorLocation);
-    }
+    /**
+     * Applies the effect that occurs after this ground is unlocked.
+     *
+     * @param actor the actor unlocking the ground
+     * @param doorLocation the location of the unlockable ground
+     */
+    void applyEffect(Actor actor, Location doorLocation);
+}

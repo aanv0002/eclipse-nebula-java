@@ -12,22 +12,44 @@ import game.items.AlienCube;
 /**
  * An action for selling an Alien Cube.
  *
- * Selling the cube gives the worker 25 credits in narrative terms and instantly
- * spawns an Undead on an empty adjacent tile if possible.
+ * Selling the cube removes it from the actor's inventory, gives 25 credits in
+ * narrative terms, and attempts to spawn one Undead on an empty adjacent tile.
  *
  * @author Tan Hong Sze
  * @version 1.0
  */
 public class SellAction extends Action {
 
+    /**
+     * Credits gained from selling the Alien Cube.
+     */
     private static final int CREDITS = 25;
 
+    /**
+     * The Alien Cube being sold.
+     */
     private final AlienCube cube;
 
+    /**
+     * Creates a sell action for the given Alien Cube.
+     *
+     * @param cube the Alien Cube to sell
+     */
     public SellAction(AlienCube cube) {
         this.cube = cube;
     }
 
+    /**
+     * Executes the sale of the Alien Cube.
+     *
+     * The cube is removed from the actor's inventory. The action then searches
+     * adjacent locations and attempts to spawn one Undead on the first empty,
+     * enterable tile found.
+     *
+     * @param actor the actor selling the cube
+     * @param map the map the actor is currently on
+     * @return result message describing the sale and spawn outcome
+     */
     @Override
     public String execute(Actor actor, GameMap map) {
         actor.getInventory().remove(cube);
@@ -54,6 +76,12 @@ public class SellAction extends Action {
                 + " credits, but there is no empty adjacent tile for an Undead to spawn.";
     }
 
+    /**
+     * Returns the menu description for selling the Alien Cube.
+     *
+     * @param actor the actor performing the action
+     * @return menu description
+     */
     @Override
     public String menuDescription(Actor actor) {
         return actor + " sells the Alien Cube for " + CREDITS + " credits";

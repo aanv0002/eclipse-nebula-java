@@ -40,7 +40,7 @@ public class Fire extends Ground implements BurningGround {
     public Fire(Ground previousGround, int duration) {
         super('^', "Fire");
         this.previousGround = previousGround;
-        this.remainingTurns = duration + 1;
+        this.remainingTurns = duration ;
         this.justCreated = true;
     }
 

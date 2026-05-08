@@ -15,13 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A magic circle that randomly teleports workers to another magic circle.
+ * A magic circle that randomly teleports workers to another magic circle on the
+ * same map.
  *
  * @author Tan Hong Sze
  * @version 1.0
  */
 public class MagicCircle extends Ground implements Teleportable {
 
+    /**
+     * All known magic circle destinations on the map.
+     */
     private List<TeleportDestination> circleDestinations;
 
     /**
@@ -35,12 +39,20 @@ public class MagicCircle extends Ground implements Teleportable {
     /**
      * Sets all magic circle destinations on the map.
      *
-     * @param circleDestinations destinations
+     * @param circleDestinations all magic circle destinations
      */
     public void setCircleDestinations(List<TeleportDestination> circleDestinations) {
         this.circleDestinations = circleDestinations;
     }
 
+    /**
+     * Returns all other magic circles except the one the actor is currently
+     * standing on.
+     *
+     * @param actor the actor using the magic circle
+     * @param map the current map
+     * @return available destination circles
+     */
     @Override
     public List<TeleportDestination> getDestinations(Actor actor, GameMap map) {
         Location current = map.locationOf(actor);
@@ -57,16 +69,34 @@ public class MagicCircle extends Ground implements Teleportable {
         return available;
     }
 
+    /**
+     * Returns the flask-spawning effect applied after arrival.
+     *
+     * @return spawn flask effect
+     */
     @Override
     public TeleportEffect getEffect() {
         return new SpawnFlaskEffect();
     }
 
+    /**
+     * Returns the teleport device name.
+     *
+     * @return teleport device name
+     */
     @Override
     public String getTeleportName() {
         return "the magic circle";
     }
 
+    /**
+     * Allows the actor to use the magic circle when standing directly on it.
+     *
+     * @param actor the actor acting
+     * @param location the current location
+     * @param direction the direction of this ground from the actor
+     * @return action list containing the teleport action when standing on circle
+     */
     @Override
     public ActionList allowableActions(Actor actor, Location location, String direction) {
         ActionList actions = new ActionList();

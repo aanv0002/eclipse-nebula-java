@@ -9,14 +9,13 @@ import game.actions.UnlockDoorAction;
 import game.alarm.AlarmSystem;
 import game.actors.ContractedWorker;
 import game.actors.Undead;
+import game.doors.ClearanceLevel;
 import game.grounds.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
-import game.spawners.FleshyTreeSpawner;
 import game.spawners.HoleCreatureSpawner;
-import game.grounds.flora.*;
-import game.spawners.TreeSpawner;
-import game.spawners.WarperTreeSpawner;
+import game.teleport.TeleportDestination;
+import game.teleport.Teleportable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,25 +24,14 @@ import java.util.List;
  * This class handles the creation of the Eclipse Nebula world.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @version 2.0
  */
 public class EclipseNebula extends World {
 
-    /**
-     * Inventory weight limit for each worker.
-     */
     public static final int WORKER_WEIGHT_LIMIT = 50;
 
-    /**
-     * Shared facility alarm system.
-     */
     private final AlarmSystem alarmSystem;
 
-    /**
-     * Creates the game world.
-     *
-     * @param display the display object
-     */
     public EclipseNebula(Display display) {
         super(display);
         this.alarmSystem = new AlarmSystem();
@@ -52,30 +40,31 @@ public class EclipseNebula extends World {
     }
 
     /**
-     * Initialise maps, actors, items, and grounds of the game world.
+     * Initialises maps, actors, grounds, items, teleporters, and doors.
      *
-     * @throws Exception in case if anything goes wrong
+     * @throws Exception if setup fails
      */
     public void initialise() throws Exception {
         DefaultGroundCreator groundCreator = new DefaultGroundCreator();
+
         groundCreator.registerGround('.', Dirt::new);
         groundCreator.registerGround('#', Wall::new);
-        groundCreator.registerGround('~', Puddle::new);
         groundCreator.registerGround('_', Floor::new);
-        groundCreator.registerGround('=', Door::new);
+        groundCreator.registerGround('~', Puddle::new);
+        groundCreator.registerGround('≈', ToxicWaste::new);
+        groundCreator.registerGround('=', AluminiumDoor::new);
+        groundCreator.registerGround('N', IronDoor::new);
+        groundCreator.registerGround('M', TitaniumDoor::new);
         groundCreator.registerGround('o', () -> new Hole(new HoleCreatureSpawner()));
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
-        groundCreator.registerGround('y', FleshySprout::new);
-        groundCreator.registerGround('v', FleshySapling::new);
-        groundCreator.registerGround('Y', FleshyMatureTree::new);
-        groundCreator.registerGround('w', WarperSapling::new);
-        groundCreator.registerGround('W', WarperMatureTree::new);
+        groundCreator.registerGround('Φ', TeleportationTube::new);
+        groundCreator.registerGround('◎', MagicCircle::new);
 
         List<String> moon99Deprecated = Arrays.asList(
                 "....................########################################",
                 "...#######.......o..#__________________#________________o__#",
                 "...#_____#..........=__________________=___________________#",
-                "...#_____=...~......#__________________#___________________#",
+                "...#__Φ__=...~......#__________________#___________________#",
                 "...#_____#..~!~.....########=#####=#####___#############___#",
                 "...#######.~~~~.....#______#_#_________#___#___________#___#",
                 ".........~~~~..!....#______#_#_________#####___________#####",
@@ -94,46 +83,191 @@ public class EclipseNebula extends World {
                 "....................########################################"
         );
 
-        GameMap moon99DeprecatedMap = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
-        this.addGameMap(moon99DeprecatedMap);
+        List<String> moon20Overflow = Arrays.asList(
+                ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈",
+                "...#######...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈##################≈≈≈≈≈≈≈",
+                "...#_____#...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈#________________#≈≈≈≈≈≈≈",
+                "...#__Φ__=NM.........≈≈≈≈≈≈≈≈#######________________#≈≈≈≈≈≈≈",
+                "...#_____#...........≈≈≈≈≈≈≈≈#_____=________________#≈≈≈≈≈≈≈",
+                "...#######...≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈#_◎___###########N######≈≈≈≈≈≈≈",
+                ".............≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈#_____#≈≈≈≈≈≈≈≈≈#______#≈≈≈≈≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈#########N#####≈≈≈≈≈≈≈≈≈#______#≈≈≈≈≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈#_____________#≈≈≈≈≈≈≈≈≈#___◎__#≈≈≈≈≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈#______o______#≈≈≈≈≈≈≈≈≈#______#≈≈≈≈≈≈≈",
+                ".............≈≈≈≈≈≈≈≈######=########≈≈≈≈≈≈≈≈≈####M###≈≈≈≈≈≈≈",
+                "...≈≈≈≈≈≈≈≈≈.≈≈≈≈≈≈≈≈≈≈≈≈≈#_#≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈#_#≈≈≈≈≈≈≈≈≈",
+                "...≈≈≈≈≈≈≈≈≈.≈≈≈≈≈≈≈≈≈≈≈≈≈#_#≈≈≈≈≈###############_#######≈≈≈",
+                ".............≈≈≈≈≈≈≈≈≈≈≈≈≈#_____________________________#≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈≈≈≈≈≈#_______N_____________≈≈≈≈____#≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈≈≈≈≈≈#___◎___#_____________≈≈≈≈≈≈__≈≈≈≈",
+                "....≈≈≈≈≈≈...≈≈≈≈≈≈≈≈≈≈≈≈≈######################≈≈≈≈≈≈≈≈≈≈≈≈",
+                ".............≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈",
+                ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈",
+                ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈"
+        );
 
-        placeUniqueShipItems(moon99DeprecatedMap);
-        placeFacilityItems(moon99DeprecatedMap);
-        addWorkers(moon99DeprecatedMap);
-        placeTrees(moon99DeprecatedMap);
+        GameMap map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
+        GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
+
+        this.addGameMap(map99);
+        this.addGameMap(map20);
+
+        placeUniqueShipItems(map99);
+        placeFacilityItems99(map99);
+        placeFacilityItems20(map20);
+
+        configureTeleportationTubes(map99, map20);
+        configureMagicCircles(map20);
+
+        addWorkers(map99);
     }
 
-    @Override
-    protected void gameLoop() throws edu.monash.fit2099.engine.GameEngineException {
-        alarmSystem.tick();
-        super.gameLoop();
-    }
-
+    /**
+     * Places the unique starting ship items in 99-Deprecated.
+     *
+     * @param map the 99-Deprecated map
+     */
     private void placeUniqueShipItems(GameMap map) {
-        map.at(6, 2).addItem(new AccessCard());
+        map.at(6, 2).addItem(new AccessCard(ClearanceLevel.LEVEL_1));
         map.at(7, 2).addItem(new FirstAidKit());
         map.at(8, 2).addItem(new SterilisationBox());
-        map.at(8, 3).addItem(new AccessCard());
     }
 
-    private void placeFacilityItems(GameMap map) {
+    /**
+     * Places items in 99-Deprecated.
+     *
+     * @param map the 99-Deprecated map
+     */
+    private void placeFacilityItems99(GameMap map) {
         map.at(11, 3).addItem(new Apple());
         map.at(12, 3).addItem(new Cookies());
         map.at(13, 3).addItem(new Lantern());
         map.at(14, 3).addItem(new FloppyDisk());
         map.at(15, 3).addItem(new CRTMonitor());
-        map.at(10, 8).addItem(new Cookies());
-
     }
 
+    /**
+     * Places items in 20-Overflow.
+     *
+     * @param map the 20-Overflow map
+     */
+    private void placeFacilityItems20(GameMap map) {
+        map.at(45, 3).addItem(new AlienCube());
+        map.at(43, 14).addItem(new AlienCube());
+        map.at(32, 5).addItem(new AlienCube());
+
+        // Testing cards for higher-level doors.
+        map.at(7, 3).addItem(new AccessCard(ClearanceLevel.LEVEL_2));
+        map.at(8, 3).addItem(new AccessCard(ClearanceLevel.LEVEL_3));
+    }
+
+    /**
+     * Configures teleportation tube destinations.
+     *
+     * @param map99 the 99-Deprecated map
+     * @param map20 the 20-Overflow map
+     */
+    private void configureTeleportationTubes(GameMap map99, GameMap map20) {
+        Teleportable tube99Teleportable = map99.at(6, 3).getGroundAs(Teleportable.class);
+        Teleportable tube20Teleportable = map20.at(6, 3).getGroundAs(Teleportable.class);
+
+        if (tube99Teleportable instanceof TeleportationTube tube99) {
+            tube99.addDestination(new TeleportDestination(
+                    map99,
+                    map99.at(12, 4),
+                    "99-Deprecated facility entrance"
+            ));
+            tube99.addDestination(new TeleportDestination(
+                    map20,
+                    map20.at(6, 3),
+                    "20-Overflow armoured ship"
+            ));
+            tube99.addDestination(new TeleportDestination(
+                    map20,
+                    map20.at(31, 5),
+                    "20-Overflow factory floor"
+            ));
+        }
+
+        if (tube20Teleportable instanceof TeleportationTube tube20) {
+            tube20.addDestination(new TeleportDestination(
+                    map20,
+                    map20.at(31, 5),
+                    "20-Overflow factory floor"
+            ));
+            tube20.addDestination(new TeleportDestination(
+                    map99,
+                    map99.at(6, 3),
+                    "99-Deprecated armoured ship"
+            ));
+        }
+    }
+
+    /**
+     * Configures all magic circle destinations in 20-Overflow.
+     *
+     * @param map20 the 20-Overflow map
+     */
+    private void configureMagicCircles(GameMap map20) {
+        List<TeleportDestination> destinations = new java.util.ArrayList<>();
+
+        for (int x : map20.getXRange()) {
+            for (int y : map20.getYRange()) {
+                Teleportable teleportable = map20.at(x, y).getGroundAs(Teleportable.class);
+
+                if (teleportable instanceof MagicCircle) {
+                    destinations.add(new TeleportDestination(
+                            map20,
+                            map20.at(x, y),
+                            "Magic Circle at (" + x + ", " + y + ")"
+                    ));
+                }
+            }
+        }
+
+        for (TeleportDestination destination : destinations) {
+            Teleportable teleportable = destination.getLocation().getGroundAs(Teleportable.class);
+
+            if (teleportable instanceof MagicCircle circle) {
+                circle.setCircleDestinations(destinations);
+            }
+        }
+    }
+
+    /**
+     * Sets magic circle destinations on a location if the ground is a magic circle.
+     *
+     * @param location magic circle location
+     * @param destinations all magic circle destinations
+     */
+    private void setMagicCircleDestinations(edu.monash.fit2099.engine.positions.Location location,
+                                            List<TeleportDestination> destinations) {
+        Teleportable teleportable = location.getGroundAs(Teleportable.class);
+
+        if (teleportable instanceof MagicCircle circle) {
+            circle.setCircleDestinations(destinations);
+        }
+    }
+
+    /**
+     * Adds workers to the starting map.
+     *
+     * @param map starting map
+     * @throws Exception if workers cannot be added
+     */
     private void addWorkers(GameMap map) throws Exception {
         ContractedWorker worker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
-        ContractedWorker worker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
+     //   ContractedWorker worker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
 
-        this.addPlayer(worker1, map.at(12, 4));
-        this.addPlayer(worker2, map.at(8, 3));
+        this.addPlayer(worker1, map.at(5, 3));
+      //  this.addPlayer(worker2, map.at(5, 4));
     }
 
+    /**
+     * Creates a starting inventory for each worker.
+     *
+     * @return starting inventory
+     */
     private Inventory createStartingInventory() {
         Inventory inventory = new WeightLimitedInventory(WORKER_WEIGHT_LIMIT);
         inventory.add(new Flask());
@@ -141,13 +275,13 @@ public class EclipseNebula extends World {
     }
 
     /**
-     * Places initial flora onto the map
-     * @param map game map
+     * Ticks the alarm system before the normal world loop.
+     *
+     * @throws edu.monash.fit2099.engine.GameEngineException if the game loop fails
      */
-    private void placeTrees(GameMap map) {
-        TreeSpawner fleshyTreeSpawner = new FleshyTreeSpawner();
-        TreeSpawner warperTreeSpawner = new WarperTreeSpawner();
-        map.at(10, 5).setGround(fleshyTreeSpawner.spawnTree());
-        map.at(20, 8).setGround(warperTreeSpawner.spawnTree());
+    @Override
+    protected void gameLoop() throws edu.monash.fit2099.engine.GameEngineException {
+        alarmSystem.tick();
+        super.gameLoop();
     }
 }

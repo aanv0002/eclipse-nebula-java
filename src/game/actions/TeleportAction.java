@@ -13,15 +13,38 @@ import java.util.List;
 /**
  * Action for using a teleport device.
  *
+ * The action delegates available destination data to Teleportable and movement
+ * logic to TeleportService. It can support fixed destinations, random
+ * destination selection, and optional teleportation malfunction.
+ *
  * @author Tan Hong Sze
  * @version 1.0
  */
 public class TeleportAction extends Action {
 
+    /**
+     * The teleport device being used.
+     */
     private final Teleportable teleportable;
+
+    /**
+     * The selected destination, or null if one should be chosen randomly.
+     */
     private final TeleportDestination selectedDestination;
+
+    /**
+     * Whether this action should choose randomly from the device destinations.
+     */
     private final boolean chooseRandomDestination;
+
+    /**
+     * Whether this action can malfunction and choose a random location instead.
+     */
     private final boolean allowMalfunction;
+
+    /**
+     * Service responsible for teleport movement and random location selection.
+     */
     private final TeleportService service;
 
     /**
@@ -30,7 +53,7 @@ public class TeleportAction extends Action {
      * @param teleportable teleport device
      * @param selectedDestination selected destination, or null for random
      * @param chooseRandomDestination true if destination should be chosen randomly
-     * @param allowMalfunction true if 50% malfunction applies
+     * @param allowMalfunction true if malfunction can occur
      */
     public TeleportAction(Teleportable teleportable,
                           TeleportDestination selectedDestination,
@@ -43,6 +66,18 @@ public class TeleportAction extends Action {
         this.service = new TeleportService();
     }
 
+    /**
+     * Executes the teleport action.
+     *
+     * The source location is recorded before movement so teleport effects such
+     * as cube corruption can affect the original location. If malfunction is
+     * enabled, the actor has a chance to be moved to a random location within
+     * the selected destination map.
+     *
+     * @param actor the actor performing the action
+     * @param map the map the actor is currently on
+     * @return result message
+     */
     @Override
     public String execute(Actor actor, GameMap map) {
         Location source = map.locationOf(actor);
@@ -59,7 +94,7 @@ public class TeleportAction extends Action {
         Location finalLocation = destination.getLocation();
         boolean malfunctioned = false;
 
-        if (allowMalfunction && Math.random() < 0.5) { //0.5
+        if (allowMalfunction && Math.random() < 0.5) {
             Location randomLocation = service.getRandomLocation(destination.getMap(), actor);
             if (randomLocation != null) {
                 finalLocation = randomLocation;
@@ -84,6 +119,12 @@ public class TeleportAction extends Action {
                 + " and teleports to " + destination.getName() + ".";
     }
 
+    /**
+     * Returns the menu description for this teleport action.
+     *
+     * @param actor the actor performing the action
+     * @return menu description
+     */
     @Override
     public String menuDescription(Actor actor) {
         if (selectedDestination == null) {

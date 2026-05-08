@@ -3,19 +3,19 @@ package game.actions;
 import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.positions.GameMap;
+import edu.monash.fit2099.engine.positions.Location;
 import game.alarm.AlarmSystem;
-import game.grounds.Unlockable;
+import game.doors.Unlockable;
 
 /**
  * An action that attempts to unlock an unlockable ground.
  *
  * During alarm lockdown, unlocking is temporarily prevented.
- *
  * This class is the single enforcement point for alarm-based door locking,
- * so the AccessCard does not need to duplicate the same check.
+ * so AccessCard does not need to duplicate the same check.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @version 2.0
  */
 public class UnlockDoorAction extends Action {
 
@@ -30,8 +30,12 @@ public class UnlockDoorAction extends Action {
     private final Unlockable unlockable;
 
     /**
+     * Location of the door being unlocked.
+     */
+    private final Location doorLocation;
+
+    /**
      * Sets the shared alarm system used by all UnlockDoorAction instances.
-     *
      * This should be called once during world setup.
      *
      * @param alarmSystem the shared alarm system
@@ -44,19 +48,21 @@ public class UnlockDoorAction extends Action {
      * Creates an unlock action.
      *
      * @param unlockable the target to unlock
+     * @param doorLocation the location of the unlockable ground
      */
-    public UnlockDoorAction(Unlockable unlockable) {
+    public UnlockDoorAction(Unlockable unlockable, Location doorLocation) {
         this.unlockable = unlockable;
+        this.doorLocation = doorLocation;
     }
 
     /**
      * Executes the unlock attempt.
      *
      * If the facility alarm lockdown is active, the unlock attempt is blocked.
-     * Otherwise, the unlockable object is unlocked normally.
+     * Otherwise, the unlockable ground is unlocked and its door effect is applied.
      *
-     * @param actor The actor performing the action.
-     * @param map The map the actor is on.
+     * @param actor the actor performing the action
+     * @param map the map the actor is on
      * @return the result of the unlock attempt
      */
     @Override
@@ -67,13 +73,15 @@ public class UnlockDoorAction extends Action {
         }
 
         unlockable.unlock();
+        unlockable.applyEffect(actor, doorLocation);
+
         return actor + " unlocks the door.";
     }
 
     /**
      * Returns the menu description for this action.
      *
-     * @param actor The actor performing the action.
+     * @param actor the actor performing the action
      * @return the menu description
      */
     @Override

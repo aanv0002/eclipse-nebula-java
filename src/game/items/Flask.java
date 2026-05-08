@@ -34,6 +34,7 @@ public class Flask extends Item implements Consumable {
         super("Flask", 'u');
         this.remainingUses = MAX_USES;
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
+        this.makePortable();
     }
 
     /**

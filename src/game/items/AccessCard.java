@@ -12,63 +12,43 @@ import game.doors.ClearanceLevel;
 import game.doors.Unlockable;
 
 /**
- * A class representing a small rectangular piece of plastic that holds entirely
- * too much power over your ability to walk through doors.
- * Its primary function is to beep happily when the player has clearance, and beep
- * angrily when they don't.
- * Essential for progressing the plot.
+ * Abstract base class for all access cards.
+ * Access cards allow workers to unlock doors in the facility.
+ * Each level of access card can unlock doors up to its clearance level.
+ * Subclasses define the specific buy price, weight, display character
+ * and buy effect for each card level.
  *
- * @author Adrian Kristanto
+ * @author Tan Hong Sze
+ * @author Raima
  * @version 2.0
  */
-public class AccessCard extends Item {
+public abstract class AccessCard extends Item implements Purchasable {
 
     /**
-     * Weight of the access card.
-     */
-    public static final int WEIGHT = 1;
-
-    /**
-     * Clearance level provided by this access card.
+     * The clearance level provided by this access card.
      */
     private final ClearanceLevel clearanceLevel;
 
     /**
-     * Creates a level 1 access card.
-     */
-    public AccessCard() {
-        this(ClearanceLevel.LEVEL_1);
-    }
-
-    /**
-     * Creates an access card with a specific clearance level.
+     * Creates an access card with the given name, display character,
+     * weight and clearance level.
      *
+     * @param name the name of the access card
+     * @param displayChar the display character of the access card
+     * @param weight the weight of the access card
      * @param clearanceLevel the clearance level provided by this card
      */
-    public AccessCard(ClearanceLevel clearanceLevel) {
-        super(getCardName(clearanceLevel), '▤');
+    public AccessCard(String name, char displayChar, int weight, ClearanceLevel clearanceLevel) {
+        super(name, displayChar);
         this.clearanceLevel = clearanceLevel;
-        this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
+        this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(weight));
         this.makePortable();
     }
 
     /**
-     * Returns the clearance level of this access card.
-     *
-     * @return the clearance level
-     */
-    public ClearanceLevel getClearanceLevel() {
-        return clearanceLevel;
-    }
-
-    /**
      * Returns actions available while the card is being carried.
-     * Adds an unlock action for each adjacent locked unlockable ground if this
-     * card has enough clearance.
-     *
-     * Alarm checking is not performed here. The actual alarm restriction is
-     * enforced by UnlockDoorAction, which keeps the lockdown rule centralised in
-     * one place.
+     * Adds an unlock action for each adjacent locked unlockable ground
+     * if this card has enough clearance.
      *
      * @param owner the actor carrying this item
      * @param map the current map
@@ -91,19 +71,5 @@ public class AccessCard extends Item {
         }
 
         return actions;
-    }
-
-    /**
-     * Returns the display name for an access card.
-     *
-     * @param clearanceLevel the clearance level
-     * @return formatted card name
-     */
-    private static String getCardName(ClearanceLevel clearanceLevel) {
-        return switch (clearanceLevel) {
-            case LEVEL_1 -> "Level 1 Access Card";
-            case LEVEL_2 -> "Level 2 Access Card";
-            case LEVEL_3 -> "Level 3 Access Card";
-        };
     }
 }

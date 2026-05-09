@@ -26,9 +26,10 @@ import java.util.List;
  * The cube can also be sold, which is handled through SellAction.
  *
  * @author Tan Hong Sze
+ * @author Raima
  * @version 1.1
  */
-public class AlienCube extends Item implements Teleportable {
+public class AlienCube extends Item implements Teleportable, Sellable {
 
     /**
      * Weight of the alien cube.
@@ -59,6 +60,40 @@ public class AlienCube extends Item implements Teleportable {
         this.destinationMap = null;
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
         this.makePortable();
+    }
+
+    /**
+     * Sells the alien cube to the Supercomputer.
+     *
+     * @param actor the actor selling the cube
+     * @param wallet the wallet to add credits to
+     * @param location the location of the actor
+     * @return the result message
+     */
+    @Override
+    public String sell(Actor actor, Wallet wallet, Location location) { // ADDED: sell method
+        wallet.addCredits(getSellPrice());
+        return actor + " sells the Alien Cube for " + getSellPrice() + " credits.";
+    }
+
+    /**
+     * Returns the sell price of the alien cube.
+     *
+     * @return sell price in credits
+     */
+    @Override
+    public int getSellPrice() { // ADDED: getSellPrice method
+        return 10; // placeholder until REQ2 defines the price
+    }
+
+    /**
+     * Returns the menu text fragment for the sell action.
+     *
+     * @return menu text fragment
+     */
+    @Override
+    public String getSellDescription() { // ADDED: getSellDescription method
+        return "Alien Cube";
     }
 
     /**

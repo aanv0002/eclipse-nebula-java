@@ -9,13 +9,16 @@ import game.actions.UnlockDoorAction;
 import game.alarm.AlarmSystem;
 import game.actors.ContractedWorker;
 import game.actors.Undead;
-import game.doors.ClearanceLevel;
 import game.grounds.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
 import game.spawners.HoleCreatureSpawner;
 import game.teleport.TeleportDestination;
 import game.teleport.Teleportable;
+import game.grounds.Supercomputer;
+import game.items.AccessCardLevel1;
+import game.items.AccessCardLevel2;
+import game.items.AccessCardLevel3;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +27,7 @@ import java.util.List;
  * This class handles the creation of the Eclipse Nebula world.
  *
  * @author Tan Hong Sze
+ * @author Raima
  * @version 2.0
  */
 public class EclipseNebula extends World {
@@ -51,6 +55,7 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('#', Wall::new);
         groundCreator.registerGround('_', Floor::new);
         groundCreator.registerGround('~', Puddle::new);
+        groundCreator.registerGround('S', Supercomputer::new);
         groundCreator.registerGround('≈', ToxicWaste::new);
         groundCreator.registerGround('=', AluminiumDoor::new);
         groundCreator.registerGround('N', IronDoor::new);
@@ -128,9 +133,10 @@ public class EclipseNebula extends World {
      * @param map the 99-Deprecated map
      */
     private void placeUniqueShipItems(GameMap map) {
-        map.at(6, 2).addItem(new AccessCard(ClearanceLevel.LEVEL_1));
+        map.at(6, 2).addItem(new AccessCardLevel1()); // EDITED: use AccessCardLevel1 instead of AccessCard
         map.at(7, 2).addItem(new FirstAidKit());
         map.at(8, 2).addItem(new SterilisationBox());
+        map.at(7, 3).setGround(new Supercomputer()); // ADDED: place Supercomputer terminal on ship
     }
 
     /**
@@ -157,8 +163,8 @@ public class EclipseNebula extends World {
         map.at(32, 5).addItem(new AlienCube());
 
         // Testing cards for higher-level doors.
-        map.at(7, 3).addItem(new AccessCard(ClearanceLevel.LEVEL_2));
-        map.at(8, 3).addItem(new AccessCard(ClearanceLevel.LEVEL_3));
+        map.at(7, 3).addItem(new AccessCardLevel2()); // EDITED: use AccessCardLevel2 instead of AccessCard
+        map.at(8, 3).addItem(new AccessCardLevel3()); // EDITED: use AccessCardLevel3 instead of AccessCard
     }
 
     /**

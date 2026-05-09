@@ -10,14 +10,16 @@ import edu.monash.fit2099.engine.statistics.StatisticOperations;
 /**
  * A portable first aid kit that permanently increases the owner's maximum health
  * by 1 and restores health to full when used.
- *
- * The first aid kit weighs 25 units and has a 20-turn cooldown.
- * The cooldown only progresses while being carried.
+ * Can be purchased from the Supercomputer for 1000 credits.
+ * Attempting to buy without enough credits will kill the worker on the spot.
+ * The first aid kit weighs 25 units and has a 20-turn cooldown that only
+ * progresses while being carried.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @author Raima
+ * @version 2.0
  */
-public class FirstAidKit extends Item implements Consumable {
+public class FirstAidKit extends Item implements Consumable, Purchasable {
 
     /**
      * Weight of the first aid kit.
@@ -30,13 +32,17 @@ public class FirstAidKit extends Item implements Consumable {
     public static final int COOLDOWN_TURNS = 20;
 
     /**
+     * Purchase price of the first aid kit.
+     */
+    public static final int BUY_PRICE = 1000; // ADDED: buy price constant
+
+    /**
      * Remaining cooldown turns.
      */
     private int cooldownRemaining;
 
     /**
      * Tracks the current carrier of the first aid kit.
-     * Used to detect when the item has just been picked up.
      */
     private Actor lastCarrier;
 
@@ -51,24 +57,11 @@ public class FirstAidKit extends Item implements Consumable {
         this.makePortable();
     }
 
-    /**
-     * Returns whether the first aid kit is ready to be used.
-     *
-     * @return true if usable
-     */
     @Override
     public boolean canConsume() {
         return cooldownRemaining == 0;
     }
 
-    /**
-     * Inform a carried Item of the passage of time.
-     * The cooldown only progresses while this item is being carried.
-     * When the item is newly picked up, it starts a 20-turn cooldown.
-     *
-     * @param currentLocation the location of the owner
-     * @param actor the actor carrying the item
-     */
     @Override
     public void tick(Location currentLocation, Actor actor) {
         if (lastCarrier != actor) {
@@ -81,23 +74,11 @@ public class FirstAidKit extends Item implements Consumable {
         }
     }
 
-    /**
-     * Inform an Item on the ground of the passage of time.
-     * Resets carrier tracking so that picking the item up again will start cooldown.
-     *
-     * @param currentLocation The location of the ground on which we lie.
-     */
     @Override
     public void tick(Location currentLocation) {
         lastCarrier = null;
     }
 
-    /**
-     * Uses the first aid kit.
-     *
-     * @param actor the actor using the kit
-     * @return result message
-     */
     @Override
     public String consume(Actor actor) {
         if (!canConsume()) {
@@ -117,24 +98,57 @@ public class FirstAidKit extends Item implements Consumable {
         return actor + " uses the first aid kit, increases maximum health by 1, and restores health to full.";
     }
 
-    /**
-     * Returns the menu text fragment for consuming the first aid kit.
-     *
-     * @return menu text fragment
-     */
     @Override
     public String getConsumeDescription() {
         return "uses the first aid kit";
     }
 
-    /**
-     * Returns whether the first aid kit is fully consumed and should be removed.
-     * The first aid kit is never removed after use.
-     *
-     * @return false always
-     */
     @Override
     public boolean isConsumedUp() {
         return false;
+    }
+
+    /**
+     * Purchases the first aid kit from the Supercomputer.
+     * Costs 1000 credits. If the worker cannot afford it, the
+     * Supercomputer kills them on the spot by setting their HP to 0.
+     * Otherwise deducts 1000 credits and adds the kit to the inventory.
+     *
+     * @param actor the actor buying the first aid kit
+     * @param wallet the wallet to deduct credits from
+     * @param location the location of the actor
+     * @return the result message
+     */
+    @Override
+    public String buy(Actor actor, Wallet wallet, Location location) {
+        if (!wallet.hasEnoughCredits(BUY_PRICE)) {
+            actor.hurt(actor.getMaximumStatistic(ActorStatistics.HEALTH));
+            return actor + " cannot afford the First Aid Kit and is killed by the "
+                    + "deeply upset Supercomputer!";
+        }
+
+        wallet.deductCredits(BUY_PRICE);
+        actor.getInventory().add(this);
+        return actor + " purchases a First Aid Kit for " + BUY_PRICE + " credits.";
+    }
+
+    /**
+     * Returns the buy price of the first aid kit.
+     *
+     * @return buy price in credits
+     */
+    @Override
+    public int getBuyPrice() {
+        return BUY_PRICE;
+    }
+
+    /**
+     * Returns the menu text fragment for the buy action.
+     *
+     * @return menu text fragment
+     */
+    @Override
+    public String getBuyDescription() {
+        return "First Aid Kit (+1 max HP, full heal)";
     }
 }

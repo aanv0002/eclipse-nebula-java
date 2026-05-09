@@ -1,89 +1,79 @@
 package game.actions;
 
-import edu.monash.fit2099.engine.GameEngineException;
 import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
-import edu.monash.fit2099.engine.positions.Exit;
+import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
-import edu.monash.fit2099.engine.positions.Location;
-import game.actors.Undead;
-import game.items.AlienCube;
+import game.actors.ActorCapabilities;
+import game.actors.ContractedWorker;
+import game.items.Sellable;
+import game.items.Wallet;
 
 /**
- * An action for selling an Alien Cube.
- *
- * Selling the cube removes it from the actor's inventory, gives 25 credits in
- * narrative terms, and attempts to spawn one Undead on an empty adjacent tile.
+ * A generic action for selling a sellable item to the Supercomputer terminal.
+ * The wallet is retrieved from the actor at execution time, allowing any
+ * sellable item to create a SellAction without needing direct access to
+ * the wallet.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @author Raima
+ * @version 2.0
  */
 public class SellAction extends Action {
 
     /**
-     * Credits gained from selling the Alien Cube.
+     * The sellable item to sell.
      */
-    private static final int CREDITS = 25;
+    private final Sellable sellable;
 
     /**
-     * The Alien Cube being sold.
-     */
-    private final AlienCube cube;
-
-    /**
-     * Creates a sell action for the given Alien Cube.
+     * Creates a sell action for the given sellable item.
+     * The wallet is retrieved from the actor at execution time.
      *
-     * @param cube the Alien Cube to sell
+     * @param sellable the item to sell
      */
-    public SellAction(AlienCube cube) {
-        this.cube = cube;
+    public SellAction(Sellable sellable) {
+        this.sellable = sellable;
     }
 
     /**
-     * Executes the sale of the Alien Cube.
+     * Executes the sell action by retrieving the wallet from the actor,
+     * applying the sell effect defined by the item and removing it from
+     * the actor's inventory after selling.
      *
-     * The cube is removed from the actor's inventory. The action then searches
-     * adjacent locations and attempts to spawn one Undead on the first empty,
-     * enterable tile found.
-     *
-     * @param actor the actor selling the cube
-     * @param map the map the actor is currently on
-     * @return result message describing the sale and spawn outcome
+     * @param actor the actor performing the action
+     * @param map the map the actor is on
+     * @return the result message
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        actor.getInventory().remove(cube);
-
-        Location actorLocation = map.locationOf(actor);
-        Undead undead = new Undead();
-
-        for (Exit exit : actorLocation.getExits()) {
-            Location adjacent = exit.getDestination();
-
-            if (!adjacent.containsAnActor() && adjacent.canActorEnter(undead)) {
-                try {
-                    map.addActor(undead, adjacent);
-                    return actor + " sells the Alien Cube for " + CREDITS
-                            + " credits. An Undead appears nearby!";
-                } catch (GameEngineException exception) {
-                    return actor + " sells the Alien Cube for " + CREDITS
-                            + " credits, but the Undead fails to appear.";
-                }
-            }
+        if (!actor.hasAbility(ActorCapabilities.WORKER)) { // ADDED: check actor is a worker
+            return actor + " cannot sell items.";
         }
 
-        return actor + " sells the Alien Cube for " + CREDITS
-                + " credits, but there is no empty adjacent tile for an Undead to spawn.";
+        // ADDED: safe cast since we verified WORKER capability
+        ContractedWorker worker = (ContractedWorker) actor;
+        Wallet wallet = worker.getWallet();
+
+        String result = sellable.sell(actor, wallet, map.locationOf(actor));
+
+        // ADDED: remove item from inventory after selling
+        if (sellable instanceof Item item) {
+            actor.getInventory().remove(item);
+        }
+
+        return result;
     }
 
     /**
-     * Returns the menu description for selling the Alien Cube.
+     * Returns the menu description showing the item name and sell price.
      *
      * @param actor the actor performing the action
      * @return menu description
      */
     @Override
     public String menuDescription(Actor actor) {
-        return actor + " sells the Alien Cube for " + CREDITS + " credits";
+        return actor + " sells " + sellable.getSellDescription()
+                + " for " + sellable.getSellPrice() + " credits";
     }
 }

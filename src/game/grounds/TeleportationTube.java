@@ -43,6 +43,7 @@ public class TeleportationTube extends Ground implements Teleportable {
      *
      * @param destination destination to add
      */
+    @Override
     public void addDestination(TeleportDestination destination) {
         destinations.add(destination);
     }

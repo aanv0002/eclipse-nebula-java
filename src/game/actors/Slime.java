@@ -77,20 +77,25 @@ public class Slime extends Actor {
 
         Action moveAction = getRandomMoveAction(here);
 
-        // If the slime is on a consumable item, randomly decide to eat or move.
-        if (consumeAction != null && !(moveAction instanceof DoNothingAction)) {
+        // If the slime can both consume and move, randomly decide.
+        if (consumeAction != null && moveAction != null) {
             if (random.nextBoolean()) {
                 return consumeAction;
             }
             return moveAction;
         }
 
-        // If there is something to consume and movement is not possible, consume it.
+        // If movement is not possible, consume instead.
         if (consumeAction != null) {
             return consumeAction;
         }
 
-        return moveAction;
+        // If movement is possible, move.
+        if (moveAction != null) {
+            return moveAction;
+        }
+
+        return new DoNothingAction();
     }
 
     /**
@@ -99,18 +104,25 @@ public class Slime extends Actor {
      * @param here the current location
      * @return a movement action, or do nothing if no move is possible
      */
+    /**
+     * Returns a random valid movement action.
+     *
+     * @param here the current location
+     * @return a movement action, or null if no move is possible
+     */
     private Action getRandomMoveAction(Location here) {
         List<Action> validMoves = new ArrayList<>();
 
         for (Exit exit : here.getExits()) {
             Action moveAction = exit.getDestination().getMoveAction(this, exit.getName(), exit.getHotKey());
+
             if (moveAction != null) {
                 validMoves.add(moveAction);
             }
         }
 
         if (validMoves.isEmpty()) {
-            return new DoNothingAction();
+            return null;
         }
 
         return validMoves.get(random.nextInt(validMoves.size()));

@@ -3,6 +3,7 @@ package game.items;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.actors.ActorStatistics;
 import edu.monash.fit2099.engine.items.Item;
+import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import edu.monash.fit2099.engine.statistics.StatisticOperations;
@@ -150,5 +151,10 @@ public class FirstAidKit extends Item implements Consumable, Purchasable {
     @Override
     public String getBuyDescription() {
         return "First Aid Kit (+1 max HP, full heal)";
+    }
+
+    @Override
+    public void removeIfConsumedUp(Actor actor, GameMap map) {
+        // First aid kit is reusable and never removed.
     }
 }

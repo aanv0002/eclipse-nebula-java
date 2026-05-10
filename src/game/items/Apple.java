@@ -5,7 +5,7 @@ import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import game.statuses.PoisonStatus;
-
+import edu.monash.fit2099.engine.positions.GameMap;
 /**
  * A spoiled apple that can be consumed or sold to the Supercomputer.
  * Without a SterilisationBox it poisons the consumer for 5 turns dealing 1 damage per turn.
@@ -126,5 +126,18 @@ public class Apple extends Item implements Consumable, Sellable {
     @Override
     public String getSellDescription() {
         return "Apple";
+    }
+
+    @Override
+    public void removeIfConsumedUp(Actor actor, GameMap map) {
+        if (!isConsumedUp()) {
+            return;
+        }
+
+        if (actor.getInventory().getItems().contains(this)) {
+            actor.getInventory().remove(this);
+        } else {
+            map.locationOf(actor).removeItem(this);
+        }
     }
 }

@@ -2,7 +2,6 @@ package game.actions;
 
 import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
-import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
 import game.items.Consumable;
 
@@ -10,7 +9,7 @@ import game.items.Consumable;
  * A generic action for consuming a consumable item.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @version 1.1
  */
 public class ConsumeAction extends Action {
 
@@ -39,13 +38,7 @@ public class ConsumeAction extends Action {
     public String execute(Actor actor, GameMap map) {
         String result = consumable.consume(actor);
 
-        if (consumable instanceof Item item && consumable.isConsumedUp()) {
-            if (actor.getInventory().getItems().contains(item)) {
-                actor.getInventory().remove(item);
-            } else {
-                map.locationOf(actor).removeItem(item);
-            }
-        }
+        consumable.removeIfConsumedUp(actor, map);
 
         return result;
     }

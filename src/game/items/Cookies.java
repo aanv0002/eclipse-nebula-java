@@ -3,6 +3,7 @@ package game.items;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.actors.ActorStatistics;
 import edu.monash.fit2099.engine.items.Item;
+import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import edu.monash.fit2099.engine.statistics.StatisticOperations;
@@ -140,5 +141,18 @@ public class Cookies extends Item implements Consumable, Sellable {
     @Override
     public String getSellDescription() {
         return "Cookies (" + remainingCookies + " remaining)";
+    }
+
+    @Override
+    public void removeIfConsumedUp(Actor actor, GameMap map) {
+        if (!isConsumedUp()) {
+            return;
+        }
+
+        if (actor.getInventory().getItems().contains(this)) {
+            actor.getInventory().remove(this);
+        } else {
+            map.locationOf(actor).removeItem(this);
+        }
     }
 }

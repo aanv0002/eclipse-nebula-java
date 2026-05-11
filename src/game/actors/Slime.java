@@ -102,12 +102,6 @@ public class Slime extends Actor {
      * Returns a random valid movement action.
      *
      * @param here the current location
-     * @return a movement action, or do nothing if no move is possible
-     */
-    /**
-     * Returns a random valid movement action.
-     *
-     * @param here the current location
      * @return a movement action, or null if no move is possible
      */
     private Action getRandomMoveAction(Location here) {

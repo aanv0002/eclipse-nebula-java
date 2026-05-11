@@ -5,10 +5,20 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.infection.Infectable;
 
 /**
- * Selects the first valid adjacent infectable target.
+ * Selects the first valid infectable target in the adjacent tiles.
+ * Actors are checked before ground items on the same adjacent tile.
+ *
+ * @author Shrabonti Majumder
+ * @version 1.0
  */
 public class AdjacentInfectableSelector implements InfectionTargetSelector {
 
+    /**
+     * Selects a valid adjacent infectable target.
+     *
+     * @param location the Parasite's current location
+     * @return the selected infection target, or null if none exists
+     */
     @Override
     public InfectionTarget selectTarget(Location location) {
         for (Exit exit : location.getExits()) {

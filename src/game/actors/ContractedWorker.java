@@ -8,20 +8,32 @@ import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.displays.Menu;
 import edu.monash.fit2099.engine.items.Inventory;
 import edu.monash.fit2099.engine.positions.GameMap;
+import edu.monash.fit2099.engine.positions.Location;
 import game.actions.ConsumeAction;
+import game.infection.Infectable;
+import game.infection.WorkerInfectionEffect;
 import game.items.Consumable;
 import game.items.Wallet;
+import game.statuses.InfectedStatus;
 
 /**
  * This brave soul is capable of performing complex tasks such as picking up trash
  * off the floor, swiping plastic cards at stubborn doors, and drinking mystery
  * fluids to stay alive.
+ *
+ * The worker can also become infected by a Parasite, turning their body into a
+ * living hive that takes damage and periodically spawns new Parasites.
+ *
+ * @author Tan Hong Sze
+ * @author Shrabonti Majumder
+ * @version 2.0
  */
-public class ContractedWorker extends Actor {
+public class ContractedWorker extends Actor implements Infectable {
+
     /**
      * The worker's wallet for storing and spending credits.
      */
-    private final Wallet wallet; // ADDED: wallet field for credit management
+    private final Wallet wallet;
 
     /**
      * Creates a contracted worker.
@@ -34,20 +46,27 @@ public class ContractedWorker extends Actor {
     public ContractedWorker(String name, char displayChar, int hitPoints, Inventory inventory) {
         super(name, displayChar, hitPoints, inventory);
         this.enableAbility(ActorCapabilities.WORKER);
-        this.wallet = new Wallet(); // ADDED: initialise wallet with zero credits
+        this.wallet = new Wallet();
     }
 
     /**
      * Returns the worker's wallet.
-     * Used by the Supercomputer to access the worker's credits
-     * for buying and selling transactions.
      *
      * @return the worker's wallet
      */
-    public Wallet getWallet() { // ADDED: getter for wallet
+    public Wallet getWallet() {
         return wallet;
     }
 
+    /**
+     * Chooses the worker's action for the current turn.
+     *
+     * @param actions collection of possible Actions for this Actor
+     * @param lastAction the Action this Actor took last turn
+     * @param map the map containing the Actor
+     * @param display the I/O object
+     * @return the chosen action
+     */
     @Override
     public Action playTurn(ActionList actions, Action lastAction, GameMap map, Display display) {
         if (!this.isConscious()) {
@@ -67,5 +86,29 @@ public class ContractedWorker extends Actor {
 
         Menu menu = new Menu(actions);
         return menu.showMenu(this, display);
+    }
+
+    /**
+     * Returns whether the worker can currently be infected.
+     *
+     * @return true if the worker does not already have an infected status
+     */
+    @Override
+    public boolean canBeInfected() {
+        return !this.hasStatus(InfectedStatus.class);
+    }
+
+    /**
+     * Applies Parasite infection to the worker.
+     *
+     * @param parasite the Parasite applying infection
+     * @param location the worker's location
+     * @return infection result message
+     */
+    @Override
+    public String infect(Actor parasite, Location location) {
+        InfectedStatus infectedStatus = new InfectedStatus(new WorkerInfectionEffect(this));
+        this.addStatus(infectedStatus);
+        return infectedStatus.onInfected(location);
     }
 }

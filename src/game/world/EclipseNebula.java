@@ -12,7 +12,11 @@ import game.actors.Undead;
 import game.grounds.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
+import game.spawners.FleshyTreeSpawner;
 import game.spawners.HoleCreatureSpawner;
+import game.grounds.flora.*;
+import game.spawners.TreeSpawner;
+import game.spawners.WarperTreeSpawner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +65,11 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('=', Door::new);
         groundCreator.registerGround('o', () -> new Hole(new HoleCreatureSpawner()));
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
+        groundCreator.registerGround('y', FleshySprout::new);
+        groundCreator.registerGround('v', FleshySapling::new);
+        groundCreator.registerGround('Y', FleshyMatureTree::new);
+        groundCreator.registerGround('w', WarperSapling::new);
+        groundCreator.registerGround('W', WarperMatureTree::new);
 
         List<String> moon99Deprecated = Arrays.asList(
                 "....................########################################",
@@ -91,6 +100,7 @@ public class EclipseNebula extends World {
         placeUniqueShipItems(moon99DeprecatedMap);
         placeFacilityItems(moon99DeprecatedMap);
         addWorkers(moon99DeprecatedMap);
+        placeTrees(moon99DeprecatedMap);
     }
 
     @Override
@@ -128,5 +138,16 @@ public class EclipseNebula extends World {
         Inventory inventory = new WeightLimitedInventory(WORKER_WEIGHT_LIMIT);
         inventory.add(new Flask());
         return inventory;
+    }
+
+    /**
+     * Places initial flora onto the map
+     * @param map game map
+     */
+    private void placeTrees(GameMap map) {
+        TreeSpawner fleshyTreeSpawner = new FleshyTreeSpawner();
+        TreeSpawner warperTreeSpawner = new WarperTreeSpawner();
+        map.at(10, 5).setGround(fleshyTreeSpawner.spawnTree());
+        map.at(20, 8).setGround(warperTreeSpawner.spawnTree());
     }
 }

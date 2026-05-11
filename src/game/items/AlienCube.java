@@ -1,19 +1,18 @@
 package game.items;
 
-import edu.monash.fit2099.engine.GameEngineException;
 import edu.monash.fit2099.engine.actions.ActionList;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.items.Item;
-import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import game.actions.TeleportAction;
 import game.actors.Undead;
+import game.spawners.CreatureSpawnService;
 import game.teleport.CubeCorruptEffect;
-import game.teleport.Teleportable;
 import game.teleport.TeleportDestination;
 import game.teleport.TeleportEffect;
+import game.teleport.Teleportable;
 import game.teleport.TeleportService;
 
 import java.util.ArrayList;
@@ -28,22 +27,41 @@ import java.util.List;
  *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
 public class AlienCube extends Item implements Teleportable, Sellable {
 
+    /**
+     * Weight of the alien cube.
+     */
     public static final int WEIGHT = 1;
 
+    /**
+     * Sell price of the alien cube.
+     */
     public static final int SELL_PRICE = 25;
 
+    /**
+     * Number of random teleport destinations shown to the worker.
+     */
     private static final int RANDOM_DESTINATION_COUNT = 3;
 
+    /**
+     * Fixed random destinations generated for the current map.
+     */
     private List<TeleportDestination> fixedDestinations;
 
+    /**
+     * The map for which fixed destinations were generated.
+     */
     private GameMap destinationMap;
 
+    /**
+     * Creates an alien cube.
+     */
     public AlienCube() {
-        super("Alien Cube", '◈');
+        super("Alien Cube", '*');
         this.fixedDestinations = new ArrayList<>();
         this.destinationMap = null;
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
@@ -51,8 +69,7 @@ public class AlienCube extends Item implements Teleportable, Sellable {
     }
 
     /**
-     * Sells the Alien Cube to the Supercomputer and attempts to spawn an Undead
-     * beside the seller.
+     * Sells the Alien Cube and attempts to spawn an Undead beside the seller.
      *
      * @param actor the actor selling the cube
      * @param wallet the wallet to add credits to
@@ -63,37 +80,43 @@ public class AlienCube extends Item implements Teleportable, Sellable {
     public String sell(Actor actor, Wallet wallet, Location location) {
         wallet.addCredits(getSellPrice());
 
-        Undead undead = new Undead();
-
-        for (Exit exit : location.getExits()) {
-            Location adjacent = exit.getDestination();
-
-            if (!adjacent.containsAnActor() && adjacent.canActorEnter(undead)) {
-                try {
-                    location.map().addActor(undead, adjacent);
-                    return actor + " sells the Alien Cube for " + getSellPrice()
-                            + " credits. An Undead appears nearby!";
-                } catch (GameEngineException exception) {
-                    return actor + " sells the Alien Cube for " + getSellPrice()
-                            + " credits, but the Undead fails to appear.";
-                }
-            }
+        CreatureSpawnService spawnService = new CreatureSpawnService();
+        if (spawnService.spawnAdjacent(location, new Undead())) {
+            return actor + " sells the Alien Cube for " + getSellPrice()
+                    + " credits. An Undead appears nearby!";
         }
 
         return actor + " sells the Alien Cube for " + getSellPrice()
                 + " credits, but there is no empty adjacent tile for an Undead to spawn.";
     }
 
+    /**
+     * Returns the sell price.
+     *
+     * @return sell price in credits
+     */
     @Override
     public int getSellPrice() {
         return SELL_PRICE;
     }
 
+    /**
+     * Returns the sell description.
+     *
+     * @return sell description
+     */
     @Override
     public String getSellDescription() {
         return "Alien Cube";
     }
 
+    /**
+     * Returns the cube's teleport destinations.
+     *
+     * @param actor the actor teleporting
+     * @param map the current map
+     * @return teleport destinations
+     */
     @Override
     public List<TeleportDestination> getDestinations(Actor actor, GameMap map) {
         if (destinationMap != map || fixedDestinations.isEmpty()) {
@@ -103,6 +126,12 @@ public class AlienCube extends Item implements Teleportable, Sellable {
         return fixedDestinations;
     }
 
+    /**
+     * Generates fixed random destinations for the current map.
+     *
+     * @param actor the actor teleporting
+     * @param map the current map
+     */
     private void generateFixedDestinations(Actor actor, GameMap map) {
         TeleportService service = new TeleportService();
         List<Location> randomLocations = service.getRandomLocations(map, actor, RANDOM_DESTINATION_COUNT);
@@ -120,11 +149,21 @@ public class AlienCube extends Item implements Teleportable, Sellable {
         }
     }
 
+    /**
+     * Returns the teleport effect used by the cube.
+     *
+     * @return cube corrupt effect
+     */
     @Override
     public TeleportEffect getEffect() {
         return new CubeCorruptEffect();
     }
 
+    /**
+     * Returns the teleportable name.
+     *
+     * @return teleportable name
+     */
     @Override
     public String getTeleportName() {
         return "the alien cube";
@@ -132,9 +171,6 @@ public class AlienCube extends Item implements Teleportable, Sellable {
 
     /**
      * Returns teleport actions while the cube is carried.
-     *
-     * Selling is not added here because selling should only be available through
-     * the Supercomputer interaction.
      *
      * @param owner the actor carrying this item
      * @param map the current map

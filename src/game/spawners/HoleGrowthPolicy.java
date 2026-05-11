@@ -10,8 +10,8 @@ import java.util.Random;
 
 /**
  * A policy that handles the 1% chance for a successful hole spawn to grow a
- * new adjacent hole. The new hole inherits the same spawning capabilities as
- * the parent hole.
+ * new adjacent hole. The new hole inherits the exact same spawning capabilities
+ * as the parent hole.
  *
  * @author Shrabonti Majumder
  * @version 1.0
@@ -56,7 +56,7 @@ public class HoleGrowthPolicy {
 
         if (!candidates.isEmpty()) {
             Location destination = candidates.get(random.nextInt(candidates.size()));
-            destination.setGround(new Hole(spawner.copy()));
+            destination.setGround(new Hole(spawner.copy(), this));
         }
     }
 }

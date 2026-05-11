@@ -9,12 +9,22 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Shared service for putting creatures onto the map and applying spawn reactions.
+ * A shared service for placing creatures onto the map and applying any spawn
+ * reactions required by REQ4.
+ *
+ * @author Shrabonti Majumder
+ * @version 1.0
  */
 public class CreatureSpawnService {
 
+    /**
+     * Reactions that may apply after a creature successfully spawns.
+     */
     private final List<SpawnReaction> spawnReactions;
 
+    /**
+     * Creates the default creature spawn service with all REQ4 spawn reactions.
+     */
     public CreatureSpawnService() {
         this.spawnReactions = Arrays.asList(
                 new UndeadSpawnReaction(),
@@ -23,10 +33,24 @@ public class CreatureSpawnService {
         );
     }
 
+    /**
+     * Attempts to spawn a generated creature at the given location.
+     *
+     * @param location the target spawn location
+     * @param spawner the creature spawner
+     * @return true if the creature was spawned successfully
+     */
     public boolean spawnAt(Location location, CreatureSpawner spawner) {
         return spawnAt(location, spawner.spawnCreature());
     }
 
+    /**
+     * Attempts to place a specific creature at the given location.
+     *
+     * @param location the target spawn location
+     * @param creature the creature to place
+     * @return true if the creature was spawned successfully
+     */
     public boolean spawnAt(Location location, Actor creature) {
         if (location.containsAnActor() || !location.canActorEnter(creature)) {
             return false;
@@ -41,6 +65,13 @@ public class CreatureSpawnService {
         }
     }
 
+    /**
+     * Attempts to spawn a creature on one of the empty tiles adjacent to an origin.
+     *
+     * @param origin the origin location
+     * @param creature the creature to spawn
+     * @return true if the creature was spawned successfully
+     */
     public boolean spawnAdjacent(Location origin, Actor creature) {
         for (Exit exit : origin.getExits()) {
             if (spawnAt(exit.getDestination(), creature)) {
@@ -50,6 +81,12 @@ public class CreatureSpawnService {
         return false;
     }
 
+    /**
+     * Applies all spawn reactions that support the spawned creature.
+     *
+     * @param creature the spawned creature
+     * @param location the spawn location
+     */
     private void applyReactions(Actor creature, Location location) {
         for (SpawnReaction reaction : spawnReactions) {
             if (reaction.supports(creature)) {

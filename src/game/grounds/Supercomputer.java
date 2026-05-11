@@ -2,23 +2,27 @@ package game.grounds;
 
 import edu.monash.fit2099.engine.actions.ActionList;
 import edu.monash.fit2099.engine.actors.Actor;
+import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.Ground;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actions.BuyAction;
 import game.actions.SellAction;
 import game.actors.ActorCapabilities;
-import game.actors.ContractedWorker;
-import game.items.*;
+import game.items.AccessCardLevel1;
+import game.items.AccessCardLevel2;
+import game.items.AccessCardLevel3;
+import game.items.FirstAidKit;
+import game.items.Sellable;
+import game.items.SterilisationBox;
 
 /**
  * A Supercomputer terminal located inside the armoured ship.
- * Workers can interact with it to sell scraps found on the moon
- * or purchase equipment using credits stored in their wallet.
- * Only contracted workers with the WORKER capability can interact
- * with the Supercomputer.
+ * Workers can interact with it to sell scraps found on the moon or purchase
+ * equipment using credits stored in their wallet.
  *
  * @author Raima
- * @version 1.0
+ * @author Shrabonti Majumder
+ * @version 2.0
  */
 public class Supercomputer extends Ground {
 
@@ -26,14 +30,12 @@ public class Supercomputer extends Ground {
      * Creates a Supercomputer terminal.
      */
     public Supercomputer() {
-        super('≡', "Supercomputer");
+        super('S', "Supercomputer");
     }
 
     /**
-     * Returns the list of actions available when a worker is adjacent to
-     * the Supercomputer. Adds a SellAction for each Sellable item in the
-     * worker's inventory and BuyAction for each available purchasable item.
-     * Only workers with the WORKER capability can interact with the terminal.
+     * Returns the list of actions available when a worker is adjacent to the
+     * Supercomputer.
      *
      * @param actor the actor interacting with the Supercomputer
      * @param location the location of the Supercomputer
@@ -48,10 +50,9 @@ public class Supercomputer extends Ground {
             return actions;
         }
 
-        ContractedWorker worker = (ContractedWorker) actor;
-
-        for (Sellable sellable : worker.getInventory().getItemsAs(Sellable.class)) {
-            actions.add(new SellAction(sellable));
+        for (Item item : actor.getInventory().getItems()) {
+            item.asCapability(Sellable.class)
+                    .ifPresent(sellable -> actions.add(new SellAction(item, sellable)));
         }
 
         actions.add(new BuyAction(new FirstAidKit()));

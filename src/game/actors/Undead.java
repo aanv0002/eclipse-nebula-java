@@ -13,8 +13,10 @@ import edu.monash.fit2099.engine.weapons.IntrinsicWeapon;
 import game.alarm.AlarmSystem;
 import game.behaviours.AttackNearbyWorkerBehaviour;
 import game.behaviours.FollowNearestWorkerBehaviour;
-import game.actors.ActorCapabilities;
+import game.infection.Infectable;
+import game.infection.UndeadInfectionEffect;
 import game.inventory.BasicInventory;
+import game.statuses.InfectedStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +28,14 @@ import java.util.TreeMap;
  * A hostile creature that attacks nearby workers and permanently chases them
  * only if the alarm is triggered after it has already spawned.
  *
+ * The Undead can be infected by a Parasite. If infected, the Undead immediately
+ * blows up and dies.
+ *
  * @author Tan Hong Sze
- * @version 1.0
+ * @author Shrabonti Majumder
+ * @version 2.0
  */
-public class Undead extends Actor {
+public class Undead extends Actor implements Infectable {
 
     /**
      * Running number for undead naming.
@@ -74,8 +80,10 @@ public class Undead extends Actor {
      * Creates an undead.
      */
     public Undead() {
-        super("#" + counter++ + " Undead", 'Ѫ', 15, new BasicInventory());
+        super("#" + counter++ + " Undead", 'U', 15, new BasicInventory());
         this.enableAbility(ActorCapabilities.HOSTILE_TO_WORKER);
+        this.enableAbility(ActorCapabilities.CREATURE);
+        this.enableAbility(ActorCapabilities.UNDEAD);
         this.setIntrinsicWeapon(new IntrinsicWeapon(1, "punches", 10, "bare fist") {});
         behaviours.put(1, new AttackNearbyWorkerBehaviour());
         behaviours.put(2, new FollowNearestWorkerBehaviour());
@@ -87,13 +95,8 @@ public class Undead extends Actor {
     /**
      * Chooses an action for the undead.
      *
-     * Priority:
-     * 1. Attack nearby worker
-     * 2. Permanently chase nearest worker if alarm was triggered after this undead spawned
-     * 3. Wander randomly
-     *
      * @param actions collection of possible Actions for this Actor
-     * @param lastAction The Action this Actor took last turn
+     * @param lastAction the Action this Actor took last turn
      * @param map the map containing the Actor
      * @param display the I/O object
      * @return the chosen action
@@ -143,5 +146,29 @@ public class Undead extends Actor {
         }
 
         return validMoves.get(random.nextInt(validMoves.size()));
+    }
+
+    /**
+     * Returns whether the Undead can currently be infected.
+     *
+     * @return true if the Undead does not already have an infected status
+     */
+    @Override
+    public boolean canBeInfected() {
+        return !this.hasStatus(InfectedStatus.class);
+    }
+
+    /**
+     * Applies Parasite infection to the Undead.
+     *
+     * @param parasite the Parasite applying infection
+     * @param location the Undead's location
+     * @return infection result message
+     */
+    @Override
+    public String infect(Actor parasite, Location location) {
+        InfectedStatus infectedStatus = new InfectedStatus(new UndeadInfectionEffect(this));
+        this.addStatus(infectedStatus);
+        return infectedStatus.onInfected(location);
     }
 }

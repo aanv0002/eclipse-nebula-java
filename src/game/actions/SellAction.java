@@ -17,6 +17,7 @@ import game.items.Wallet;
  *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
 public class SellAction extends Action {
@@ -27,19 +28,23 @@ public class SellAction extends Action {
     private final Sellable sellable;
 
     /**
-     * Creates a sell action for the given sellable item.
-     * The wallet is retrieved from the actor at execution time.
-     *
-     * @param sellable the item to sell
+     * Concrete item backing the sellable capability.
      */
-    public SellAction(Sellable sellable) {
+    private final Item item;
+
+    /**
+     * Creates a sell action for the given sellable item.
+     *
+     * @param item the concrete item to remove after selling
+     * @param sellable the sellable capability to execute
+     */
+    public SellAction(Item item, Sellable sellable) {
+        this.item = item;
         this.sellable = sellable;
     }
 
     /**
-     * Executes the sell action by retrieving the wallet from the actor,
-     * applying the sell effect defined by the item and removing it from
-     * the actor's inventory after selling.
+     * Executes the sell action.
      *
      * @param actor the actor performing the action
      * @param map the map the actor is on
@@ -47,20 +52,15 @@ public class SellAction extends Action {
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        if (!actor.hasAbility(ActorCapabilities.WORKER)) { // ADDED: check actor is a worker
+        if (!actor.hasAbility(ActorCapabilities.WORKER)) {
             return actor + " cannot sell items.";
         }
 
-        // ADDED: safe cast since we verified WORKER capability
         ContractedWorker worker = (ContractedWorker) actor;
         Wallet wallet = worker.getWallet();
 
         String result = sellable.sell(actor, wallet, map.locationOf(actor));
-
-        // ADDED: remove item from inventory after selling
-        if (sellable instanceof Item item) {
-            actor.getInventory().remove(item);
-        }
+        actor.getInventory().remove(item);
 
         return result;
     }

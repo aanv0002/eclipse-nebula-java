@@ -8,5 +8,9 @@ package game.actors;
  */
 public enum ActorCapabilities {
     HOSTILE_TO_WORKER,
-    WORKER
+    WORKER,
+    CREATURE,
+    UNDEAD,
+    SLIME,
+    PARASITE
 }

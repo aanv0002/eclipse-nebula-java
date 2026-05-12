@@ -6,6 +6,7 @@ import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
+import game.actions.SellAction;
 import game.actions.TeleportAction;
 import game.actors.Undead;
 import game.spawners.CreatureSpawnService;
@@ -61,7 +62,7 @@ public class AlienCube extends Item implements Teleportable, Sellable {
      * Creates an alien cube.
      */
     public AlienCube() {
-        super("Alien Cube", '*');
+        super("Alien Cube", '◈');
         this.fixedDestinations = new ArrayList<>();
         this.destinationMap = null;
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
@@ -108,6 +109,26 @@ public class AlienCube extends Item implements Teleportable, Sellable {
     @Override
     public String getSellDescription() {
         return "Alien Cube";
+    }
+
+    /**
+     * Removes the alien cube from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this); // ADDED: remove alien cube after selling
+    }
+
+    /**
+     * Returns whether the alien cube can currently be sold.
+     *
+     * @return true always
+     */
+    @Override
+    public boolean canSell() {
+        return true;
     }
 
     /**
@@ -184,6 +205,8 @@ public class AlienCube extends Item implements Teleportable, Sellable {
             actions.add(new TeleportAction(this, destination, false, false));
         }
 
+        actions.add(new SellAction(this, this));
         return actions;
+
     }
 }

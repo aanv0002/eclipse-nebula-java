@@ -13,6 +13,7 @@ import edu.monash.fit2099.engine.weapons.IntrinsicWeapon;
 import game.alarm.AlarmSystem;
 import game.behaviours.AttackNearbyWorkerBehaviour;
 import game.behaviours.FollowNearestWorkerBehaviour;
+import game.actors.ActorCapabilities;
 import game.inventory.BasicInventory;
 
 import java.util.ArrayList;

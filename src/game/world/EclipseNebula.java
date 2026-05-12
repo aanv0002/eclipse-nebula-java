@@ -187,7 +187,6 @@ public class EclipseNebula extends World {
         if (tube99 != null) {
             tube99.addDestination(new TeleportDestination(
                     map99,
-                    map99.at(12, 4),
                     "99-Deprecated facility entrance"
             ));
             tube99.addDestination(new TeleportDestination(

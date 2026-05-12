@@ -11,13 +11,14 @@ import edu.monash.fit2099.engine.positions.GameMap;
 import game.actions.ConsumeAction;
 import game.items.Consumable;
 import game.items.Wallet;
+import game.items.WalletCarrier;
 
 /**
  * This brave soul is capable of performing complex tasks such as picking up trash
  * off the floor, swiping plastic cards at stubborn doors, and drinking mystery
  * fluids to stay alive.
  */
-public class ContractedWorker extends Actor {
+public class ContractedWorker extends Actor implements WalletCarrier {
     /**
      * The worker's wallet for storing and spending credits.
      */

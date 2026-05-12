@@ -168,6 +168,16 @@ public class Lantern extends Item implements Sellable, Infectable {
     }
 
     /**
+     * Removes the lantern from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this);
+    }
+
+    /**
      * Drains lantern oil.
      *
      * @param amount oil amount to drain
@@ -209,3 +219,4 @@ public class Lantern extends Item implements Sellable, Infectable {
         return infectedStatus.onInfected(location);
     }
 }
+

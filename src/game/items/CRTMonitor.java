@@ -116,4 +116,14 @@ public class CRTMonitor extends Item implements Sellable {
     public String getSellDescription() {
         return "CRT Monitor";
     }
+
+    /**
+     * Removes the CRT monitor from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this);
+    }
 }

@@ -97,6 +97,16 @@ public class AlienCube extends Item implements Teleportable, Sellable {
     }
 
     /**
+     * Removes the alien cube from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this); // ADDED: remove alien cube after selling
+    }
+
+    /**
      * Returns three fixed random destinations for the current map.
      *
      * If the cube is used on a different map, or if no destinations have been

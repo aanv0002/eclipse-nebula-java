@@ -4,8 +4,7 @@ import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
-import game.actors.ActorCapabilities;
-import game.actors.ContractedWorker;
+import game.items.WalletCarrier;
 import game.items.Sellable;
 import game.items.Wallet;
 
@@ -47,20 +46,19 @@ public class SellAction extends Action {
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        if (!actor.hasAbility(ActorCapabilities.WORKER)) {
+        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
+        if (walletCarrier == null) {
             return actor + " cannot sell items.";
         }
 
-        ContractedWorker worker = (ContractedWorker) actor;
-        Wallet wallet = worker.getWallet();
+        Wallet wallet = walletCarrier.getWallet();
 
-        // ADDED: check if item can be sold before proceeding
         if (!sellable.canSell()) {
             return actor + " cannot sell " + sellable.getSellDescription() + " right now.";
         }
 
         String result = sellable.sell(actor, wallet, map.locationOf(actor));
-        sellable.removeAfterSell(actor); // EDITED: replaced instanceof with interface method
+        sellable.removeAfterSell(actor);
 
         return result;
     }

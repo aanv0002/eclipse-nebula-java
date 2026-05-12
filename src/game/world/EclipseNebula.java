@@ -16,6 +16,7 @@ import game.items.*;
 import game.spawners.HoleCreatureSpawner;
 import game.teleport.TeleportDestination;
 import game.teleport.Teleportable;
+import game.spawners.VentCreatureSpawner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
  *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
 public class EclipseNebula extends World {
@@ -57,7 +59,8 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('=', AluminiumDoor::new);
         groundCreator.registerGround('N', IronDoor::new);
         groundCreator.registerGround('M', TitaniumDoor::new);
-        groundCreator.registerGround('o', () -> new Hole(new HoleCreatureSpawner()));
+        groundCreator.registerGround('o', () -> new Hole(HoleCreatureSpawner.forDeprecatedMoon()));
+        groundCreator.registerGround('V', () -> new Vent(new VentCreatureSpawner()));
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
         groundCreator.registerGround('Φ', TeleportationTube::new);
         groundCreator.registerGround('◎', MagicCircle::new);
@@ -110,6 +113,8 @@ public class EclipseNebula extends World {
 
         GameMap map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
         GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
+
+        configureOverflowSpawners(map20, moon20Overflow);
 
         this.addGameMap(map99);
         this.addGameMap(map20);
@@ -178,6 +183,7 @@ public class EclipseNebula extends World {
             tube99.addDestination(new TeleportDestination(map99, map99.at(18, 2), "99-Deprecated facility entrance"));
             tube99.addDestination(new TeleportDestination(map20, map20.at(6, 3), "20-Overflow armoured ship"));
             tube99.addDestination(new TeleportDestination(map20, map20.at(31, 5), "20-Overflow factory floor"));
+
         }
 
         if (tube20 != null) {
@@ -210,6 +216,35 @@ public class EclipseNebula extends World {
         }
     }
 
+    /**
+     * Configures 20-Overflow-only spawners.
+     * Holes in 20-Overflow spawn Undead and Parasites, while vents spawn
+     * Parasites and Slimes.
+     *
+     * @param map20 the 20-Overflow map
+     * @param moon20Overflow source map strings
+     */
+    private void configureOverflowSpawners(GameMap map20, List<String> moon20Overflow) {
+        for (int y = 0; y < moon20Overflow.size(); y++) {
+            String row = moon20Overflow.get(y);
+            for (int x = 0; x < row.length(); x++) {
+                if (row.charAt(x) == 'o') {
+                    map20.at(x, y).setGround(new Hole(HoleCreatureSpawner.forOverflowMoon()));
+                }
+            }
+        }
+
+        map20.at(12, 6).setGround(new Vent(new VentCreatureSpawner()));
+        map20.at(18, 12).setGround(new Vent(new VentCreatureSpawner()));
+    }
+
+
+    /**
+     * Adds workers to the starting map.
+     *
+     * @param map starting map
+     * @throws Exception if workers cannot be added
+     */
     private void addWorkers(GameMap map) throws Exception {
        ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
         ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());

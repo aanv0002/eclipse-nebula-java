@@ -97,4 +97,14 @@ public class FloppyDisk extends Item implements Sellable {
     public String getSellDescription() {
         return "Floppy Disk";
     }
+
+    /**
+     * Removes the floppy disk from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this);
+    }
 }

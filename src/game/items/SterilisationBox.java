@@ -67,15 +67,15 @@ public class SterilisationBox extends Item implements Purchasable {
         wallet.deductCredits(BUY_PRICE);
         actor.getInventory().add(this);
 
-        List<Item> items = actor.getInventory().getItems()
+        List<Item> erasableItems = actor.getInventory().getItems()
                 .stream()
-                .filter(item -> item != this)
+                .filter(item -> !item.hasAbility(ItemCapabilities.NON_ERASABLE))
                 .toList();
 
         String result = actor + " purchases a Sterilisation Box for " + BUY_PRICE + " credits.";
 
-        if (!items.isEmpty()) {
-            Item randomItem = items.get(random.nextInt(items.size()));
+        if (!erasableItems.isEmpty()) {
+            Item randomItem = erasableItems.get(random.nextInt(erasableItems.size()));
             actor.getInventory().remove(randomItem);
             result += " The radiation erases " + randomItem + " from the inventory!";
         } else {

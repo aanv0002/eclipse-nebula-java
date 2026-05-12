@@ -7,5 +7,6 @@ package game.items;
  * @version 1.0
  */
 public enum ItemCapabilities {
-    STERILISE
+    STERILISE,
+    NON_ERASABLE
 }

@@ -3,10 +3,9 @@ package game.actions;
 import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.positions.GameMap;
-import game.actors.ActorCapabilities;
-import game.actors.ContractedWorker;
 import game.items.Purchasable;
 import game.items.Wallet;
+import game.items.WalletCarrier;
 
 /**
  * A generic action for purchasing an item from the Supercomputer terminal.
@@ -15,7 +14,7 @@ import game.items.Wallet;
  * the wallet.
  *
  * @author Raima
- * @version 2.0
+ * @version 1.0
  * @see Purchasable
  */
 public class BuyAction extends Action {
@@ -41,17 +40,16 @@ public class BuyAction extends Action {
      *
      * @param actor the actor performing the action
      * @param map the map the actor is on
-     * @return the result message
+     * @return the result message of the purchase including any side effects
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        if (!actor.hasAbility(ActorCapabilities.WORKER)) {
+        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
+        if (walletCarrier == null) {
             return actor + " cannot buy items.";
         }
 
-        ContractedWorker worker = (ContractedWorker) actor;
-        Wallet wallet = worker.getWallet();
-
+        Wallet wallet = walletCarrier.getWallet();
         return purchasable.buy(actor, wallet, map.locationOf(actor));
     }
 
@@ -60,15 +58,15 @@ public class BuyAction extends Action {
      * and the worker's current wallet balance.
      *
      * @param actor the actor performing the action
-     * @return menu description
+     * @return menu description including item name, credit cost and wallet balance
      */
     @Override
     public String menuDescription(Actor actor) {
-        if (actor.hasAbility(ActorCapabilities.WORKER)) {
-            ContractedWorker worker = (ContractedWorker) actor;
+        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
+        if (walletCarrier != null) {
             return actor + " buys " + purchasable.getBuyDescription()
                     + " for " + purchasable.getBuyPrice() + " credits"
-                    + " (wallet: " + worker.getWallet().getCredits() + " credits)";
+                    + " (wallet: " + walletCarrier.getWallet().getCredits() + " credits)";
         }
         return actor + " buys " + purchasable.getBuyDescription();
     }

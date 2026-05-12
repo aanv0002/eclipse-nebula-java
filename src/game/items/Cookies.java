@@ -7,6 +7,9 @@ import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import edu.monash.fit2099.engine.statistics.StatisticOperations;
+import game.infection.CookieInfectionEffect;
+import game.infection.Infectable;
+import game.statuses.InfectedStatus;
 
 /**
  * A packet of cookies containing 5 cookies that can be consumed or sold.
@@ -17,11 +20,15 @@ import edu.monash.fit2099.engine.statistics.StatisticOperations;
  * organic processing fee.
  * The item disappears only after all cookies are consumed or when sold.
  *
+ * Cookies can also be infected by a Parasite. An infected packet loses 1 cookie
+ * every turn and attempts to spawn Parasites beside it.
+ *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
-public class Cookies extends Item implements Consumable, Sellable {
+public class Cookies extends Item implements Consumable, Sellable, Infectable {
 
     /**
      * Weight of the cookies.
@@ -36,12 +43,12 @@ public class Cookies extends Item implements Consumable, Sellable {
     /**
      * Price per remaining cookie when sold to the Supercomputer.
      */
-    public static final int PRICE_PER_COOKIE = 1; // ADDED: price per cookie constant
+    public static final int PRICE_PER_COOKIE = 1;
 
     /**
      * HP deducted per cookie when sold as organic processing fee.
      */
-    public static final int HP_COST_PER_COOKIE = 1; // ADDED: HP cost per cookie constant
+    public static final int HP_COST_PER_COOKIE = 1;
 
     /**
      * Remaining cookies.
@@ -52,17 +59,28 @@ public class Cookies extends Item implements Consumable, Sellable {
      * Creates a cookie packet.
      */
     public Cookies() {
-        super("Cookies", '◍');
+        super("Cookies", 'c');
         this.remainingCookies = TOTAL_COOKIES;
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
         this.makePortable();
     }
 
+    /**
+     * Returns whether at least one cookie can be consumed.
+     *
+     * @return true if cookies remain
+     */
     @Override
     public boolean canConsume() {
         return remainingCookies > 0;
     }
 
+    /**
+     * Consumes one cookie.
+     *
+     * @param actor the actor consuming the cookie
+     * @return result message
+     */
     @Override
     public String consume(Actor actor) {
         if (!canConsume()) {
@@ -87,21 +105,47 @@ public class Cookies extends Item implements Consumable, Sellable {
         return result;
     }
 
+    /**
+     * Returns the consume action description.
+     *
+     * @return consume description
+     */
     @Override
     public String getConsumeDescription() {
         return "eats a cookie";
     }
 
+    /**
+     * Returns whether all cookies are gone.
+     *
+     * @return true if no cookies remain
+     */
     @Override
     public boolean isConsumedUp() {
         return remainingCookies == 0;
     }
 
     /**
+     * Removes the cookie packet if empty.
+     *
+     * @param actor the actor consuming the object
+     * @param map the current map
+     */
+    @Override
+    public void removeIfConsumedUp(Actor actor, GameMap map) {
+        if (!isConsumedUp()) {
+            return;
+        }
+
+        if (actor.getInventory().getItems().contains(this)) {
+            actor.getInventory().remove(this);
+        } else {
+            map.locationOf(actor).removeItem(this);
+        }
+    }
+
+    /**
      * Sells the cookies to the Supercomputer.
-     * Adds credits equal to the number of remaining cookies.
-     * Deducts 1 HP from the seller for every cookie sold as an
-     * organic processing fee.
      *
      * @param actor the actor selling the cookies
      * @param wallet the wallet to add credits to
@@ -143,16 +187,55 @@ public class Cookies extends Item implements Consumable, Sellable {
         return "Cookies (" + remainingCookies + " remaining)";
     }
 
+    /**
+     * Removes the cookies from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
     @Override
-    public void removeIfConsumedUp(Actor actor, GameMap map) {
-        if (!isConsumedUp()) {
-            return;
-        }
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this);
+    }
 
-        if (actor.getInventory().getItems().contains(this)) {
-            actor.getInventory().remove(this);
-        } else {
-            map.locationOf(actor).removeItem(this);
-        }
+    /**
+     * Reduces cookie content due to infection.
+     *
+     * @param amount amount to reduce
+     */
+    public void reduceCookies(int amount) {
+        remainingCookies = Math.max(0, remainingCookies - amount);
+    }
+
+    /**
+     * Returns whether cookies remain.
+     *
+     * @return true if cookies remain
+     */
+    public boolean hasCookies() {
+        return remainingCookies > 0;
+    }
+
+    /**
+     * Returns whether this cookie packet can be infected.
+     *
+     * @return true if cookies remain and no infection is active
+     */
+    @Override
+    public boolean canBeInfected() {
+        return hasCookies() && !this.hasStatus(InfectedStatus.class);
+    }
+
+    /**
+     * Applies Parasite infection to the cookie packet.
+     *
+     * @param parasite the Parasite applying infection
+     * @param location the cookie packet's location
+     * @return infection result message
+     */
+    @Override
+    public String infect(Actor parasite, Location location) {
+        InfectedStatus infectedStatus = new InfectedStatus(new CookieInfectionEffect(this));
+        this.addStatus(infectedStatus);
+        return infectedStatus.onInfected(location);
     }
 }

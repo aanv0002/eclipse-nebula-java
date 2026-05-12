@@ -14,6 +14,7 @@ import game.infection.Infectable;
 import game.infection.WorkerInfectionEffect;
 import game.items.Consumable;
 import game.items.Wallet;
+import game.items.WalletCarrier;
 import game.statuses.InfectedStatus;
 
 /**
@@ -28,7 +29,7 @@ import game.statuses.InfectedStatus;
  * @author Shrabonti Majumder
  * @version 2.0
  */
-public class ContractedWorker extends Actor implements Infectable {
+public class ContractedWorker extends Actor implements WalletCarrier, Infectable {
 
     /**
      * The worker's wallet for storing and spending credits.
@@ -51,6 +52,8 @@ public class ContractedWorker extends Actor implements Infectable {
 
     /**
      * Returns the worker's wallet.
+     * Used by the Supercomputer to access the worker's credits
+     * for buying and selling transactions.
      *
      * @return the worker's wallet
      */
@@ -79,6 +82,7 @@ public class ContractedWorker extends Actor implements Infectable {
                 actions.add(new ConsumeAction(consumable));
             }
         }
+
 
         if (lastAction.getNextAction() != null) {
             return lastAction.getNextAction();
@@ -112,3 +116,7 @@ public class ContractedWorker extends Actor implements Infectable {
         return infectedStatus.onInfected(location);
     }
 }
+
+
+
+

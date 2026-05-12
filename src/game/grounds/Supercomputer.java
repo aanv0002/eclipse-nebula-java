@@ -8,12 +8,7 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.actions.BuyAction;
 import game.actions.SellAction;
 import game.actors.ActorCapabilities;
-import game.items.AccessCardLevel1;
-import game.items.AccessCardLevel2;
-import game.items.AccessCardLevel3;
-import game.items.FirstAidKit;
-import game.items.Sellable;
-import game.items.SterilisationBox;
+import game.items.*;
 
 /**
  * A Supercomputer terminal located inside the armoured ship.
@@ -50,9 +45,17 @@ public class Supercomputer extends Ground {
             return actions;
         }
 
-        for (Item item : actor.getInventory().getItems()) {
-            item.asCapability(Sellable.class)
-                    .ifPresent(sellable -> actions.add(new SellAction(item, sellable)));
+        if (direction.isEmpty()) {
+            return actions;
+        }
+
+        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
+        if (walletCarrier == null) {
+            return actions;
+        }
+
+        for (Sellable sellable : actor.getInventory().getItemsAs(Sellable.class)) {
+            actions.add(new SellAction(sellable));
         }
 
         actions.add(new BuyAction(new FirstAidKit()));
@@ -63,4 +66,15 @@ public class Supercomputer extends Ground {
 
         return actions;
     }
+}
+    /**
+     * Prevents actors from entering the Supercomputer tile.
+     * Workers must stand adjacent to interact with the terminal.
+     *
+     * @param actor the actor attempting to enter
+     * @return false always, the Supercomputer is impassable
+     */
+    @Override
+    public boolean canActorEnter(Actor actor) {
+        return false; }
 }

@@ -39,10 +39,11 @@ public class MagicCircle extends Ground implements Teleportable {
     /**
      * Sets all magic circle destinations on the map.
      *
-     * @param circleDestinations all magic circle destinations
+     * @param destinations all magic circle destinations
      */
-    public void setCircleDestinations(List<TeleportDestination> circleDestinations) {
-        this.circleDestinations = circleDestinations;
+    @Override
+    public void setDestinations(List<TeleportDestination> destinations) {
+        this.circleDestinations = destinations;
     }
 
     /**

@@ -4,7 +4,8 @@ import edu.monash.fit2099.engine.actions.Action;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
-import game.items.WalletCarrier;
+import game.actors.ActorCapabilities;
+import game.actors.ContractedWorker;
 import game.items.Sellable;
 import game.items.Wallet;
 
@@ -16,6 +17,7 @@ import game.items.Wallet;
  *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
 public class SellAction extends Action {
@@ -26,19 +28,23 @@ public class SellAction extends Action {
     private final Sellable sellable;
 
     /**
-     * Creates a sell action for the given sellable item.
-     * The wallet is retrieved from the actor at execution time.
-     *
-     * @param sellable the item to sell
+     * Concrete item backing the sellable capability.
      */
-    public SellAction(Sellable sellable) {
+    private final Item item;
+
+    /**
+     * Creates a sell action for the given sellable item.
+     *
+     * @param item the concrete item to remove after selling
+     * @param sellable the sellable capability to execute
+     */
+    public SellAction(Item item, Sellable sellable) {
+        this.item = item;
         this.sellable = sellable;
     }
 
     /**
-     * Executes the sell action by retrieving the wallet from the actor,
-     * applying the sell effect defined by the item and removing it from
-     * the actor's inventory after selling.
+     * Executes the sell action.
      *
      * @param actor the actor performing the action
      * @param map the map the actor is on
@@ -46,19 +52,15 @@ public class SellAction extends Action {
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
-        if (walletCarrier == null) {
+        if (!actor.hasAbility(ActorCapabilities.WORKER)) {
             return actor + " cannot sell items.";
         }
 
-        Wallet wallet = walletCarrier.getWallet();
-
-        if (!sellable.canSell()) {
-            return actor + " cannot sell " + sellable.getSellDescription() + " right now.";
-        }
+        ContractedWorker worker = (ContractedWorker) actor;
+        Wallet wallet = worker.getWallet();
 
         String result = sellable.sell(actor, wallet, map.locationOf(actor));
-        sellable.removeAfterSell(actor);
+        actor.getInventory().remove(item);
 
         return result;
     }

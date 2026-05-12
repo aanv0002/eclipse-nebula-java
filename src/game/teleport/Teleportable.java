@@ -9,30 +9,31 @@ import java.util.List;
  * Represents any object that can provide teleportation actions.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @version 1.1
  */
 public interface Teleportable {
 
-    /**
-     * Returns available teleport destinations.
-     *
-     * @param actor the actor using the teleport device
-     * @param map the current map
-     * @return list of possible destinations
-     */
     List<TeleportDestination> getDestinations(Actor actor, GameMap map);
 
-    /**
-     * Returns the effect applied after teleporting.
-     *
-     * @return teleport effect
-     */
     TeleportEffect getEffect();
 
-    /**
-     * Returns the name of this teleport device.
-     *
-     * @return device name
-     */
     String getTeleportName();
+
+    /**
+     * Adds a teleport destination to this teleportable object.
+     * Teleportables that do not store destinations may ignore this.
+     *
+     * @param destination destination to add
+     */
+    default void addDestination(TeleportDestination destination) {
+    }
+
+    /**
+     * Replaces all teleport destinations for this teleportable object.
+     * Teleportables that do not use shared destination lists may ignore this.
+     *
+     * @param destinations destinations to set
+     */
+    default void setDestinations(List<TeleportDestination> destinations) {
+    }
 }

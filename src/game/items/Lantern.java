@@ -7,7 +7,10 @@ import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import game.grounds.BurningGround;
 import game.grounds.Fire;
+import game.infection.Infectable;
+import game.infection.LanternInfectionEffect;
 import game.statuses.BurningStatus;
+import game.statuses.InfectedStatus;
 
 import java.util.Random;
 
@@ -19,11 +22,15 @@ import java.util.Random;
  * per turn for 3 turns. There is also an independent 25% chance it spawns
  * Fire on all surrounding tiles.
  *
+ * The Lantern can also be infected by a Parasite. An infected Lantern loses
+ * 1 oil every turn until it runs out.
+ *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
-public class Lantern extends Item implements Sellable {
+public class Lantern extends Item implements Sellable, Infectable {
 
     /**
      * Weight of the lantern.
@@ -38,7 +45,7 @@ public class Lantern extends Item implements Sellable {
     /**
      * Credits earned per unit of oil remaining when sold.
      */
-    public static final int CREDITS_PER_OIL = 5; // ADDED: credits per oil constant
+    public static final int CREDITS_PER_OIL = 5;
 
     /**
      * Chance to leak each carried turn.
@@ -48,22 +55,22 @@ public class Lantern extends Item implements Sellable {
     /**
      * Chance to burn the seller when sold.
      */
-    private static final double BURN_CHANCE = 0.5; // ADDED: burn chance constant
+    private static final double BURN_CHANCE = 0.5;
 
     /**
      * Chance to spawn fire on surrounding tiles when sold.
      */
-    private static final double FIRE_SPAWN_CHANCE = 0.25; // ADDED: fire spawn chance constant
+    private static final double FIRE_SPAWN_CHANCE = 0.25;
 
     /**
      * Number of turns the seller burns when sold.
      */
-    private static final int BURN_DURATION = 3; // ADDED: burn duration constant
+    private static final int BURN_DURATION = 3;
 
     /**
      * Damage dealt per turn when seller burns after selling.
      */
-    private static final int BURN_DAMAGE = 2; // ADDED: burn damage constant
+    private static final int BURN_DAMAGE = 2;
 
     /**
      * Remaining oil.
@@ -108,11 +115,6 @@ public class Lantern extends Item implements Sellable {
 
     /**
      * Sells the lantern to the Supercomputer.
-     * Adds 5 credits per unit of oil remaining to the wallet.
-     * There is a 50% chance the lantern burns the seller for 2 damage
-     * per turn for 3 turns.
-     * There is an independent 25% chance fire spawns on all surrounding tiles.
-     * Both effects can happen at the same time.
      *
      * @param actor the actor selling the lantern
      * @param wallet the wallet to add credits to
@@ -166,13 +168,44 @@ public class Lantern extends Item implements Sellable {
     }
 
     /**
-     * Removes the lantern from the actor's inventory after selling.
+     * Drains lantern oil.
      *
-     * @param actor the actor whose inventory to remove this item from
+     * @param amount oil amount to drain
      */
-    @Override
-    public void removeAfterSell(Actor actor) {
-        actor.getInventory().remove(this);
+    public void drainOil(int amount) {
+        oil = Math.max(0, oil - amount);
     }
 
+    /**
+     * Returns whether the lantern has oil.
+     *
+     * @return true if oil remains
+     */
+    public boolean hasOil() {
+        return oil > 0;
+    }
+
+    /**
+     * Returns whether this Lantern can be infected.
+     *
+     * @return true if oil remains and no infection is active
+     */
+    @Override
+    public boolean canBeInfected() {
+        return hasOil() && !this.hasStatus(InfectedStatus.class);
+    }
+
+    /**
+     * Applies Parasite infection to the Lantern.
+     *
+     * @param parasite the Parasite applying infection
+     * @param location the Lantern's location
+     * @return infection result message
+     */
+    @Override
+    public String infect(Actor parasite, Location location) {
+        InfectedStatus infectedStatus = new InfectedStatus(new LanternInfectionEffect(this));
+        this.addStatus(infectedStatus);
+        return infectedStatus.onInfected(location);
+    }
 }

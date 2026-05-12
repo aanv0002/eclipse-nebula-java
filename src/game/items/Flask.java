@@ -3,6 +3,7 @@ package game.items;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.items.DropAction;
 import edu.monash.fit2099.engine.items.Item;
+import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 
 /**
@@ -96,5 +97,10 @@ public class Flask extends Item implements Consumable {
     @Override
     public boolean isConsumedUp() {
         return false;
+    }
+
+    @Override
+    public void removeIfConsumedUp(Actor actor, GameMap map) {
+        // Flask remains in inventory even when empty.
     }
 }

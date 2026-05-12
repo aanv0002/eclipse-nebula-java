@@ -19,6 +19,8 @@ import game.grounds.Supercomputer;
 import game.items.AccessCardLevel1;
 import game.items.AccessCardLevel2;
 import game.items.AccessCardLevel3;
+import game.spawners.VentCreatureSpawner;
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.List;
  *
  * @author Tan Hong Sze
  * @author Raima
+ * @author Shrabonti Majumder
  * @version 2.0
  */
 public class EclipseNebula extends World {
@@ -60,7 +63,8 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('=', AluminiumDoor::new);
         groundCreator.registerGround('N', IronDoor::new);
         groundCreator.registerGround('M', TitaniumDoor::new);
-        groundCreator.registerGround('o', () -> new Hole(new HoleCreatureSpawner()));
+        groundCreator.registerGround('o', () -> new Hole(HoleCreatureSpawner.forDeprecatedMoon()));
+        groundCreator.registerGround('V', () -> new Vent(new VentCreatureSpawner()));
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
         groundCreator.registerGround('Φ', TeleportationTube::new);
         groundCreator.registerGround('◎', MagicCircle::new);
@@ -114,6 +118,8 @@ public class EclipseNebula extends World {
         GameMap map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
         GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
 
+        configureOverflowSpawners(map20, moon20Overflow);
+
         this.addGameMap(map99);
         this.addGameMap(map20);
 
@@ -161,10 +167,11 @@ public class EclipseNebula extends World {
         map.at(45, 3).addItem(new AlienCube());
         map.at(43, 14).addItem(new AlienCube());
         map.at(32, 5).addItem(new AlienCube());
+        map.at(33, 5).setGround(new Supercomputer());
 
         // Testing cards for higher-level doors.
-        map.at(7, 3).addItem(new AccessCardLevel2()); // EDITED: use AccessCardLevel2 instead of AccessCard
-        map.at(8, 3).addItem(new AccessCardLevel3()); // EDITED: use AccessCardLevel3 instead of AccessCard
+        map.at(7, 3).addItem(new AccessCardLevel2());
+        map.at(8, 3).addItem(new AccessCardLevel3());
     }
 
     /**
@@ -174,13 +181,12 @@ public class EclipseNebula extends World {
      * @param map20 the 20-Overflow map
      */
     private void configureTeleportationTubes(GameMap map99, GameMap map20) {
-        Teleportable tube99Teleportable = map99.at(6, 3).getGroundAs(Teleportable.class);
-        Teleportable tube20Teleportable = map20.at(6, 3).getGroundAs(Teleportable.class);
+        Teleportable tube99 = map99.at(6, 3).getGroundAs(Teleportable.class);
+        Teleportable tube20 = map20.at(6, 3).getGroundAs(Teleportable.class);
 
-        if (tube99Teleportable instanceof TeleportationTube tube99) {
+        if (tube99 != null) {
             tube99.addDestination(new TeleportDestination(
                     map99,
-                    map99.at(18, 2),
                     "99-Deprecated facility entrance"
             ));
             tube99.addDestination(new TeleportDestination(
@@ -195,7 +201,7 @@ public class EclipseNebula extends World {
             ));
         }
 
-        if (tube20Teleportable instanceof TeleportationTube tube20) {
+        if (tube20 != null) {
             tube20.addDestination(new TeleportDestination(
                     map20,
                     map20.at(31, 5),
@@ -216,44 +222,50 @@ public class EclipseNebula extends World {
      */
     private void configureMagicCircles(GameMap map20) {
         List<TeleportDestination> destinations = new java.util.ArrayList<>();
+        List<Teleportable> magicCircles = new java.util.ArrayList<>();
 
         for (int x : map20.getXRange()) {
             for (int y : map20.getYRange()) {
                 Teleportable teleportable = map20.at(x, y).getGroundAs(Teleportable.class);
 
-                if (teleportable instanceof MagicCircle) {
+                if (teleportable != null && "the magic circle".equals(teleportable.getTeleportName())) {
                     destinations.add(new TeleportDestination(
                             map20,
                             map20.at(x, y),
                             "Magic Circle at (" + x + ", " + y + ")"
                     ));
+                    magicCircles.add(teleportable);
                 }
             }
         }
 
-        for (TeleportDestination destination : destinations) {
-            Teleportable teleportable = destination.getLocation().getGroundAs(Teleportable.class);
-
-            if (teleportable instanceof MagicCircle circle) {
-                circle.setCircleDestinations(destinations);
-            }
+        for (Teleportable magicCircle : magicCircles) {
+            magicCircle.setDestinations(destinations);
         }
     }
 
     /**
-     * Sets magic circle destinations on a location if the ground is a magic circle.
+     * Configures 20-Overflow-only spawners.
+     * Holes in 20-Overflow spawn Undead and Parasites, while vents spawn
+     * Parasites and Slimes.
      *
-     * @param location magic circle location
-     * @param destinations all magic circle destinations
+     * @param map20 the 20-Overflow map
+     * @param moon20Overflow source map strings
      */
-    private void setMagicCircleDestinations(edu.monash.fit2099.engine.positions.Location location,
-                                            List<TeleportDestination> destinations) {
-        Teleportable teleportable = location.getGroundAs(Teleportable.class);
-
-        if (teleportable instanceof MagicCircle circle) {
-            circle.setCircleDestinations(destinations);
+    private void configureOverflowSpawners(GameMap map20, List<String> moon20Overflow) {
+        for (int y = 0; y < moon20Overflow.size(); y++) {
+            String row = moon20Overflow.get(y);
+            for (int x = 0; x < row.length(); x++) {
+                if (row.charAt(x) == 'o') {
+                    map20.at(x, y).setGround(new Hole(HoleCreatureSpawner.forOverflowMoon()));
+                }
+            }
         }
+
+        map20.at(12, 6).setGround(new Vent(new VentCreatureSpawner()));
+        map20.at(18, 12).setGround(new Vent(new VentCreatureSpawner()));
     }
+
 
     /**
      * Adds workers to the starting map.

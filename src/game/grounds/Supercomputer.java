@@ -7,7 +7,6 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.actions.BuyAction;
 import game.actions.SellAction;
 import game.actors.ActorCapabilities;
-import game.actors.ContractedWorker;
 import game.items.*;
 
 /**
@@ -52,9 +51,12 @@ public class Supercomputer extends Ground {
             return actions;
         }
 
-        ContractedWorker worker = (ContractedWorker) actor;
+        WalletCarrier walletCarrier = actor.asCapability(WalletCarrier.class).orElse(null);
+        if (walletCarrier == null) {
+            return actions;
+        }
 
-        for (Sellable sellable : worker.getInventory().getItemsAs(Sellable.class)) {
+        for (Sellable sellable : actor.getInventory().getItemsAs(Sellable.class)) {
             actions.add(new SellAction(sellable));
         }
 

@@ -48,6 +48,10 @@ public class Supercomputer extends Ground {
             return actions;
         }
 
+        if (direction.isEmpty()) {
+            return actions;
+        }
+
         ContractedWorker worker = (ContractedWorker) actor;
 
         for (Sellable sellable : worker.getInventory().getItemsAs(Sellable.class)) {
@@ -62,4 +66,15 @@ public class Supercomputer extends Ground {
 
         return actions;
     }
+
+    /**
+     * Prevents actors from entering the Supercomputer tile.
+     * Workers must stand adjacent to interact with the terminal.
+     *
+     * @param actor the actor attempting to enter
+     * @return false always, the Supercomputer is impassable
+     */
+    @Override
+    public boolean canActorEnter(Actor actor) {
+    return false; }
 }

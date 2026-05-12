@@ -54,8 +54,10 @@ public class Supercomputer extends Ground {
             return actions;
         }
 
-        for (Sellable sellable : actor.getInventory().getItemsAs(Sellable.class)) {
-            actions.add(new SellAction(sellable));
+        for (Item item : actor.getInventory().getItems()) {
+            item.asCapability(Sellable.class).ifPresent(sellable -> {
+                actions.add(new SellAction(item, sellable));
+            });
         }
 
         actions.add(new BuyAction(new FirstAidKit()));
@@ -66,7 +68,6 @@ public class Supercomputer extends Ground {
 
         return actions;
     }
-}
     /**
      * Prevents actors from entering the Supercomputer tile.
      * Workers must stand adjacent to interact with the terminal.

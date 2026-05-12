@@ -128,6 +128,16 @@ public class Apple extends Item implements Consumable, Sellable {
         return "Apple";
     }
 
+    /**
+     * Removes the apple from the actor's inventory after selling.
+     *
+     * @param actor the actor whose inventory to remove this item from
+     */
+    @Override
+    public void removeAfterSell(Actor actor) {
+        actor.getInventory().remove(this);
+    }
+
     @Override
     public void removeIfConsumedUp(Actor actor, GameMap map) {
         if (!isConsumedUp()) {
@@ -141,3 +151,5 @@ public class Apple extends Item implements Consumable, Sellable {
         }
     }
 }
+
+

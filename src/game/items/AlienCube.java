@@ -122,16 +122,6 @@ public class AlienCube extends Item implements Teleportable, Sellable {
     }
 
     /**
-     * Returns whether the alien cube can currently be sold.
-     *
-     * @return true always
-     */
-    @Override
-    public boolean canSell() {
-        return true;
-    }
-
-    /**
      * Returns the cube's teleport destinations.
      *
      * @param actor the actor teleporting

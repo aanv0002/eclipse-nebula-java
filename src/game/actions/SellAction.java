@@ -47,20 +47,20 @@ public class SellAction extends Action {
      */
     @Override
     public String execute(Actor actor, GameMap map) {
-        if (!actor.hasAbility(ActorCapabilities.WORKER)) { // ADDED: check actor is a worker
+        if (!actor.hasAbility(ActorCapabilities.WORKER)) {
             return actor + " cannot sell items.";
         }
 
-        // ADDED: safe cast since we verified WORKER capability
         ContractedWorker worker = (ContractedWorker) actor;
         Wallet wallet = worker.getWallet();
 
-        String result = sellable.sell(actor, wallet, map.locationOf(actor));
-
-        // ADDED: remove item from inventory after selling
-        if (sellable instanceof Item item) {
-            actor.getInventory().remove(item);
+        // ADDED: check if item can be sold before proceeding
+        if (!sellable.canSell()) {
+            return actor + " cannot sell " + sellable.getSellDescription() + " right now.";
         }
+
+        String result = sellable.sell(actor, wallet, map.locationOf(actor));
+        sellable.removeAfterSell(actor); // EDITED: replaced instanceof with interface method
 
         return result;
     }

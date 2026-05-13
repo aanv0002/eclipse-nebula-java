@@ -11,6 +11,8 @@ import game.actors.AnomalousMannequin;
 import game.actors.ContractedWorker;
 import game.actors.Undead;
 import game.grounds.*;
+import game.grounds.flora.FleshySprout;
+import game.grounds.flora.WarperSapling;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
 import game.spawners.HoleCreatureSpawner;
@@ -64,6 +66,8 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
         groundCreator.registerGround('Φ', TeleportationTube::new);
         groundCreator.registerGround('◎', MagicCircle::new);
+        groundCreator.registerGround('y', FleshySprout::new);
+        groundCreator.registerGround('w', WarperSapling::new);
 
         List<String> moon99Deprecated = Arrays.asList(
                 "....................########################################",

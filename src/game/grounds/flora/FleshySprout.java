@@ -6,6 +6,8 @@ import game.spawners.FleshyTreeCreatureSpawner;
 
 /**
  * First growth stage of a fleshy tree.
+ * @author Amra Anver
+ * @version 1.0
  */
 public class FleshySprout extends FleshyTree {
 

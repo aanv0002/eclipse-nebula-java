@@ -8,6 +8,8 @@ import java.util.Random;
 
 /**
  * Abstract parent class for all fleshy trees
+ * @author Amra Anver
+ * @version 1.0
  */
 public abstract class FleshyTree extends Ground {
     /**

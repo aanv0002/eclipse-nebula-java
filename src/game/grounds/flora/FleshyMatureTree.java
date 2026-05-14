@@ -7,6 +7,8 @@ import game.spawners.FleshyTreeCreatureSpawner;
 /**
  * Final growth stage of a fleshy tree.
  * A mature fleshy tree spawns an Undead when a worker is nearby
+ * @author Amra Anver
+ * @version 1.0
  */
 public class FleshyMatureTree extends FleshyTree {
 

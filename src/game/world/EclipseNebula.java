@@ -11,8 +11,7 @@ import game.actors.AnomalousMannequin;
 import game.actors.ContractedWorker;
 import game.actors.Undead;
 import game.grounds.*;
-import game.grounds.flora.FleshySprout;
-import game.grounds.flora.WarperSapling;
+import game.grounds.flora.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
 import game.spawners.HoleCreatureSpawner;
@@ -29,6 +28,7 @@ import java.util.List;
  * @author Tan Hong Sze
  * @author Raima
  * @author Shrabonti Majumder
+ * @author Amra Anver
  * @version 2.0
  */
 public class EclipseNebula extends World {
@@ -67,7 +67,10 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('Φ', TeleportationTube::new);
         groundCreator.registerGround('◎', MagicCircle::new);
         groundCreator.registerGround('y', FleshySprout::new);
+        groundCreator.registerGround('v', FleshySapling::new);
+        groundCreator.registerGround('Y', FleshyMatureTree::new);
         groundCreator.registerGround('w', WarperSapling::new);
+        groundCreator.registerGround('W', WarperMatureTree::new);
 
         List<String> moon99Deprecated = Arrays.asList(
                 "....................########################################",
@@ -126,6 +129,8 @@ public class EclipseNebula extends World {
         placeUniqueShipItems(map99);
         placeFacilityItems99(map99);
         placeFacilityItems20(map20);
+        placeFlora(map99);
+        placeFlora(map20);
 
         configureTeleportationTubes(map99, map20);
         configureMagicCircles(map20);
@@ -158,6 +163,11 @@ public class EclipseNebula extends World {
 
         map.at(7, 3).addItem(new AccessCardLevel2());
         map.at(8, 3).addItem(new AccessCardLevel3());
+    }
+
+    private void placeFlora(GameMap map){
+        map.at(9, 11).setGround(new FleshySprout());
+        map.at(12, 10).setGround(new WarperSapling());
     }
 
     /**

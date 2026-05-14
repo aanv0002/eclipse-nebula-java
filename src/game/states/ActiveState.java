@@ -41,7 +41,7 @@ public class ActiveState implements CreatureState {
             return new StalkingState();
         }
 
-        if (!context.hasItemWithin(location, 3)) {
+        if (!context.hasItemAt(location) && !context.hasItemWithin(location, 3)) {
             return new IdleState();
         }
 

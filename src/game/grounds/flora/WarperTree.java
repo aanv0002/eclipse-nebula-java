@@ -14,6 +14,8 @@ import java.util.Random;
 
 /**
  * Abstract parent class for all warper trees
+ * @author Amra Anver
+ * @version 1.0
  */
 public abstract class WarperTree extends Ground {
     /**

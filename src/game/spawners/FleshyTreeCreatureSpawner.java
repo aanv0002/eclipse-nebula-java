@@ -9,6 +9,8 @@ import game.actors.Undead;
 
 /**
  * Spawns creatures for fleshy trees when the correct condition is met.
+ * @author Amra Anver
+ * @version 1.0
  */
 public class FleshyTreeCreatureSpawner implements CreatureSpawner {
 

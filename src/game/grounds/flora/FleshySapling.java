@@ -5,6 +5,8 @@ import edu.monash.fit2099.engine.positions.Location;
 
 /**
  * Middle growth stage of a fleshy tree
+ * @author Amra Anver
+ * @version 1.0
  */
 public class FleshySapling extends FleshyTree {
     /**

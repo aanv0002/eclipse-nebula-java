@@ -261,16 +261,16 @@ public class EclipseNebula extends World {
      */
     private void addWorkers(GameMap map) throws Exception {
        ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
-        ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
-       // ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
-       // ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
-       // ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
+       ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
+       ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
+       ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
+       ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
 
         this.addPlayer(contractedWorker1, map.at(5, 3));
         this.addPlayer(contractedWorker2, map.at(13, 2));
-      //  this.addPlayer(contractedWorker3, map.at(8, 2));
-      //  this.addPlayer(contractedWorker4, map.at(6, 4));
-      //  this.addPlayer(contractedWorker5, map.at(8, 4));
+        this.addPlayer(contractedWorker3, map.at(8, 2));
+        this.addPlayer(contractedWorker4, map.at(6, 4));
+        this.addPlayer(contractedWorker5, map.at(8, 4));
 
     }
 

@@ -31,45 +31,18 @@ import game.statuses.InfectedStatus;
  */
 public class ContractedWorker extends Actor implements WalletCarrier, Infectable {
 
-    /**
-     * The worker's wallet for storing and spending credits.
-     */
     private final Wallet wallet;
 
-    /**
-     * Creates a contracted worker.
-     *
-     * @param name the worker name
-     * @param displayChar the worker display character
-     * @param hitPoints starting hit points
-     * @param inventory the worker inventory
-     */
     public ContractedWorker(String name, char displayChar, int hitPoints, Inventory inventory) {
         super(name, displayChar, hitPoints, inventory);
         this.enableAbility(ActorCapabilities.WORKER);
         this.wallet = new Wallet();
     }
 
-    /**
-     * Returns the worker's wallet.
-     * Used by the Supercomputer to access the worker's credits
-     * for buying and selling transactions.
-     *
-     * @return the worker's wallet
-     */
     public Wallet getWallet() {
         return wallet;
     }
 
-    /**
-     * Chooses the worker's action for the current turn.
-     *
-     * @param actions collection of possible Actions for this Actor
-     * @param lastAction the Action this Actor took last turn
-     * @param map the map containing the Actor
-     * @param display the I/O object
-     * @return the chosen action
-     */
     @Override
     public Action playTurn(ActionList actions, Action lastAction, GameMap map, Display display) {
         if (!this.isConscious()) {
@@ -83,7 +56,6 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
             }
         }
 
-
         if (lastAction.getNextAction() != null) {
             return lastAction.getNextAction();
         }
@@ -92,23 +64,11 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
         return menu.showMenu(this, display);
     }
 
-    /**
-     * Returns whether the worker can currently be infected.
-     *
-     * @return true if the worker does not already have an infected status
-     */
     @Override
     public boolean canBeInfected() {
-        return !this.hasStatus(InfectedStatus.class);
+        return this.isConscious();
     }
 
-    /**
-     * Applies Parasite infection to the worker.
-     *
-     * @param parasite the Parasite applying infection
-     * @param location the worker's location
-     * @return infection result message
-     */
     @Override
     public String infect(Actor parasite, Location location) {
         InfectedStatus infectedStatus = new InfectedStatus(new WorkerInfectionEffect(this));
@@ -116,7 +76,3 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
         return infectedStatus.onInfected(location);
     }
 }
-
-
-
-

@@ -32,59 +32,19 @@ import java.util.Random;
  */
 public class Lantern extends Item implements Sellable, Infectable {
 
-    /**
-     * Weight of the lantern.
-     */
     public static final int WEIGHT = 7;
-
-    /**
-     * Starting oil fuel.
-     */
     public static final int STARTING_OIL = 10;
-
-    /**
-     * Credits earned per unit of oil remaining when sold.
-     */
     public static final int CREDITS_PER_OIL = 5;
 
-    /**
-     * Chance to leak each carried turn.
-     */
     private static final double LEAK_CHANCE = 0.05;
-
-    /**
-     * Chance to burn the seller when sold.
-     */
     private static final double BURN_CHANCE = 0.5;
-
-    /**
-     * Chance to spawn fire on surrounding tiles when sold.
-     */
     private static final double FIRE_SPAWN_CHANCE = 0.25;
-
-    /**
-     * Number of turns the seller burns when sold.
-     */
     private static final int BURN_DURATION = 3;
-
-    /**
-     * Damage dealt per turn when seller burns after selling.
-     */
     private static final int BURN_DAMAGE = 2;
 
-    /**
-     * Remaining oil.
-     */
     private int oil;
-
-    /**
-     * Random number generator for chance calculations.
-     */
     private final Random random = new Random();
 
-    /**
-     * Creates a lantern.
-     */
     public Lantern() {
         super("Lantern", '&');
         this.oil = STARTING_OIL;
@@ -92,13 +52,6 @@ public class Lantern extends Item implements Sellable, Infectable {
         this.makePortable();
     }
 
-    /**
-     * While carried, the lantern has a 5% chance to leak oil and ignite
-     * the ground beneath the actor.
-     *
-     * @param currentLocation the location of the owner
-     * @param actor the actor carrying the item
-     */
     @Override
     public void tick(Location currentLocation, Actor actor) {
         if (oil <= 0) {
@@ -113,14 +66,6 @@ public class Lantern extends Item implements Sellable, Infectable {
         }
     }
 
-    /**
-     * Sells the lantern to the Supercomputer.
-     *
-     * @param actor the actor selling the lantern
-     * @param wallet the wallet to add credits to
-     * @param location the location of the actor
-     * @return the result message
-     */
     @Override
     public String sell(Actor actor, Wallet wallet, Location location) {
         int creditsEarned = oil * CREDITS_PER_OIL;
@@ -147,71 +92,34 @@ public class Lantern extends Item implements Sellable, Infectable {
         return result;
     }
 
-    /**
-     * Returns the sell price of the lantern based on remaining oil.
-     *
-     * @return sell price in credits
-     */
     @Override
     public int getSellPrice() {
         return oil * CREDITS_PER_OIL;
     }
 
-    /**
-     * Returns the menu text fragment for the sell action.
-     *
-     * @return menu text fragment
-     */
     @Override
     public String getSellDescription() {
         return "Lantern (" + oil + " oil remaining)";
     }
 
-    /**
-     * Removes the lantern from the actor's inventory after selling.
-     *
-     * @param actor the actor whose inventory to remove this item from
-     */
     @Override
     public void removeAfterSell(Actor actor) {
         actor.getInventory().remove(this);
     }
 
-    /**
-     * Drains lantern oil.
-     *
-     * @param amount oil amount to drain
-     */
     public void drainOil(int amount) {
         oil = Math.max(0, oil - amount);
     }
 
-    /**
-     * Returns whether the lantern has oil.
-     *
-     * @return true if oil remains
-     */
     public boolean hasOil() {
         return oil > 0;
     }
 
-    /**
-     * Returns whether this Lantern can be infected.
-     *
-     * @return true if oil remains and no infection is active
-     */
     @Override
     public boolean canBeInfected() {
-        return hasOil() && !this.hasStatus(InfectedStatus.class);
+        return hasOil();
     }
 
-    /**
-     * Applies Parasite infection to the Lantern.
-     *
-     * @param parasite the Parasite applying infection
-     * @param location the Lantern's location
-     * @return infection result message
-     */
     @Override
     public String infect(Actor parasite, Location location) {
         InfectedStatus infectedStatus = new InfectedStatus(new LanternInfectionEffect(this));
@@ -219,4 +127,3 @@ public class Lantern extends Item implements Sellable, Infectable {
         return infectedStatus.onInfected(location);
     }
 }
-

@@ -30,34 +30,13 @@ import game.statuses.InfectedStatus;
  */
 public class Cookies extends Item implements Consumable, Sellable, Infectable {
 
-    /**
-     * Weight of the cookies.
-     */
     public static final int WEIGHT = 2;
-
-    /**
-     * Total number of cookies.
-     */
     public static final int TOTAL_COOKIES = 5;
-
-    /**
-     * Price per remaining cookie when sold to the Supercomputer.
-     */
     public static final int PRICE_PER_COOKIE = 1;
-
-    /**
-     * HP deducted per cookie when sold as organic processing fee.
-     */
     public static final int HP_COST_PER_COOKIE = 1;
 
-    /**
-     * Remaining cookies.
-     */
     private int remainingCookies;
 
-    /**
-     * Creates a cookie packet.
-     */
     public Cookies() {
         super("Cookies", 'c');
         this.remainingCookies = TOTAL_COOKIES;
@@ -65,22 +44,11 @@ public class Cookies extends Item implements Consumable, Sellable, Infectable {
         this.makePortable();
     }
 
-    /**
-     * Returns whether at least one cookie can be consumed.
-     *
-     * @return true if cookies remain
-     */
     @Override
     public boolean canConsume() {
         return remainingCookies > 0;
     }
 
-    /**
-     * Consumes one cookie.
-     *
-     * @param actor the actor consuming the cookie
-     * @return result message
-     */
     @Override
     public String consume(Actor actor) {
         if (!canConsume()) {
@@ -105,35 +73,19 @@ public class Cookies extends Item implements Consumable, Sellable, Infectable {
         return result;
     }
 
-    /**
-     * Returns the consume action description.
-     *
-     * @return consume description
-     */
     @Override
     public String getConsumeDescription() {
         return "eats a cookie";
     }
 
-    /**
-     * Returns whether all cookies are gone.
-     *
-     * @return true if no cookies remain
-     */
     @Override
     public boolean isConsumedUp() {
         return remainingCookies == 0;
     }
 
-    /**
-     * Removes the cookie packet if empty.
-     *
-     * @param actor the actor consuming the object
-     * @param map the current map
-     */
     @Override
     public void removeIfConsumedUp(Actor actor, GameMap map) {
-        if (!isConsumedUp()) {
+        if (!isConsumedUp() || this.hasStatus(InfectedStatus.class)) {
             return;
         }
 
@@ -144,14 +96,6 @@ public class Cookies extends Item implements Consumable, Sellable, Infectable {
         }
     }
 
-    /**
-     * Sells the cookies to the Supercomputer.
-     *
-     * @param actor the actor selling the cookies
-     * @param wallet the wallet to add credits to
-     * @param location the location of the actor
-     * @return the result message
-     */
     @Override
     public String sell(Actor actor, Wallet wallet, Location location) {
         int cookiesToSell = remainingCookies;
@@ -167,71 +111,31 @@ public class Cookies extends Item implements Consumable, Sellable, Infectable {
                 + cookiesToSell + " HP!";
     }
 
-    /**
-     * Returns the sell price of the cookies based on remaining quantity.
-     *
-     * @return sell price in credits
-     */
     @Override
     public int getSellPrice() {
         return remainingCookies * PRICE_PER_COOKIE;
     }
 
-    /**
-     * Returns the menu text fragment for the sell action.
-     *
-     * @return menu text fragment
-     */
     @Override
     public String getSellDescription() {
         return "Cookies (" + remainingCookies + " remaining)";
     }
 
-    /**
-     * Removes the cookies from the actor's inventory after selling.
-     *
-     * @param actor the actor whose inventory to remove this item from
-     */
     @Override
     public void removeAfterSell(Actor actor) {
         actor.getInventory().remove(this);
     }
 
-    /**
-     * Reduces cookie content due to infection.
-     *
-     * @param amount amount to reduce
-     */
     public void reduceCookies(int amount) {
         remainingCookies = Math.max(0, remainingCookies - amount);
     }
 
-    /**
-     * Returns whether cookies remain.
-     *
-     * @return true if cookies remain
-     */
-    public boolean hasCookies() {
-        return remainingCookies > 0;
-    }
 
-    /**
-     * Returns whether this cookie packet can be infected.
-     *
-     * @return true if cookies remain and no infection is active
-     */
     @Override
     public boolean canBeInfected() {
-        return hasCookies() && !this.hasStatus(InfectedStatus.class);
+        return true;
     }
 
-    /**
-     * Applies Parasite infection to the cookie packet.
-     *
-     * @param parasite the Parasite applying infection
-     * @param location the cookie packet's location
-     * @return infection result message
-     */
     @Override
     public String infect(Actor parasite, Location location) {
         InfectedStatus infectedStatus = new InfectedStatus(new CookieInfectionEffect(this));

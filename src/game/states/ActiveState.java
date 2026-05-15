@@ -11,8 +11,8 @@ import game.effects.ScatterNearbyItemsEffect;
  *
  * Deterministic transitions:
  * - If a worker is adjacent, transition to BerserkState.
- * - If a worker is detected within 3 tiles but not adjacent, transition to StalkingState.
- * - If no item is detected within 3 tiles, transition to IdleState.
+ * - If a worker is detected within 3 tiles radius but not adjacent, transition to StalkingState.
+ * - If no item is detected within 3 tiles radius, transition to IdleState.
  * - Otherwise, remain Active state.
  *
  * Regular behaviour:

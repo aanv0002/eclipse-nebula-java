@@ -10,9 +10,9 @@ import game.effects.IgniteSurroundingsEffect;
  * Berserk state.
  *
  * Deterministic transitions:
- * - If no worker is detected within 3 tiles and an item is detected within 3 tiles, transition to ActiveState.
- * - If no worker and no item are detected within 3 tiles, transition to IdleState.
- * - If a worker is detected within 3 tiles but not adjacent, transition to StalkingState. D
+ * - If no worker is detected within 3 tiles radius and an item is detected within 3 tiles, transition to ActiveState.
+ * - If no worker and no item are detected within 3 tiles radius, transition to IdleState.
+ * - If a worker is detected within 3 tiles radius but not adjacent, transition to StalkingState.
  * - Otherwise, remain BerserkState.
  *
  * Regular behaviour:

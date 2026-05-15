@@ -11,8 +11,8 @@ import game.effects.PoisonSurroundingsEffect;
  *
  * Deterministic transitions:
  * - If a worker becomes adjacent, transition to BerserkState.
- * - If no worker is detected within 3 tiles and an item is detected within 3 tiles, transition to ActiveState.
- * - If no worker is detected within 3 tiles and no item are nearby, transition to IdleState.
+ * - If no worker is detected within 3 tiles radius and an item is detected within 3 tiles radius, transition to ActiveState.
+ * - If no worker is detected within 3 tiles radius and no item are nearby, transition to IdleState.
  * - Otherwise, remain StalkingState.
  *
  * Regular behaviour:

@@ -11,8 +11,8 @@ import game.effects.CorruptSurroundingsEffect;
  *
  * Deterministic transitions:
  * - If two or more adjacent workers are detected, transition to BerserkState.
- * - If exactly one worker is detected within 3 tiles, transition to StalkingState.
- * - If no worker is detected within 3 tiles but an item is detected within 3 tiles, transition to ActiveState.
+ * - If exactly one worker is detected within 3 tiles radius, transition to StalkingState.
+ * - If no worker is detected within 3 tiles radius but an item is detected within 3 tiles radius, transition to ActiveState.
  * - Otherwise, remain IdleState.
  *
  * Regular behaviour:

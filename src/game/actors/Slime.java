@@ -50,7 +50,7 @@ public class Slime extends Actor {
      * Creates a slime.
      */
     public Slime() {
-        super("#" + counter++ + " Slime", 's', 25, new BasicInventory());
+        super("#" + counter++ + " Slime", '⍾', 25, new BasicInventory());
         this.enableAbility(ActorCapabilities.CREATURE);
         this.enableAbility(ActorCapabilities.SLIME);
         behaviours.put(1, new ConsumeGroundItemBehaviour());

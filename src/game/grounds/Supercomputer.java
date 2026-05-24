@@ -25,7 +25,7 @@ public class Supercomputer extends Ground {
      * Creates a Supercomputer terminal.
      */
     public Supercomputer() {
-        super('S', "Supercomputer");
+        super('≡', "Supercomputer");
     }
 
     /**

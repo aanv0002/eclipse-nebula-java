@@ -18,7 +18,7 @@ import edu.monash.fit2099.engine.positions.GameMap;
  * @author Raima
  * @version 2.0
  */
-public class Apple extends Item implements Consumable, Sellable {
+public class Apple extends Item implements Consumable, Sellable, Moldable {
 
     /**
      * Weight of the apple.
@@ -149,6 +149,16 @@ public class Apple extends Item implements Consumable, Sellable {
         } else {
             map.locationOf(actor).removeItem(this);
         }
+    }
+
+    @Override
+    public Item asItem() {
+        return this;
+    }
+
+    @Override
+    public Item createMoldedVersion() {
+        return new MoldedApple();
     }
 }
 

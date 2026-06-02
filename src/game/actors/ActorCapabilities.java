@@ -13,5 +13,7 @@ public enum ActorCapabilities {
     CREATURE,
     UNDEAD,
     SLIME,
-    PARASITE
+    PARASITE,
+    BLIND,
+    ROOTED
 }

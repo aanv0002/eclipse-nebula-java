@@ -14,6 +14,7 @@ import game.grounds.*;
 import game.grounds.flora.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
+import game.quota.QuotaSystem;
 import game.spawners.HoleCreatureSpawner;
 import game.teleport.TeleportDestination;
 import game.teleport.Teleportable;
@@ -36,10 +37,12 @@ public class EclipseNebula extends World {
     public static final int WORKER_WEIGHT_LIMIT = 50;
 
     private final AlarmSystem alarmSystem;
+    private final QuotaSystem quotaSystem; // ADDED
 
     public EclipseNebula(Display display) {
         super(display);
         this.alarmSystem = new AlarmSystem();
+        this.quotaSystem = new QuotaSystem(); // ADDED
         Undead.setAlarmSystem(alarmSystem);
         UnlockDoorAction.setAlarmSystem(alarmSystem);
     }
@@ -56,7 +59,7 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('#', Wall::new);
         groundCreator.registerGround('_', Floor::new);
         groundCreator.registerGround('~', Puddle::new);
-        groundCreator.registerGround('S', Supercomputer::new);
+        groundCreator.registerGround('S', () -> new Supercomputer(quotaSystem)); // EDITED
         groundCreator.registerGround('≈', ToxicWaste::new);
         groundCreator.registerGround('=', AluminiumDoor::new);
         groundCreator.registerGround('N', IronDoor::new);
@@ -144,7 +147,7 @@ public class EclipseNebula extends World {
         map.at(6, 2).addItem(new AccessCardLevel1());
         map.at(7, 2).addItem(new FirstAidKit());
         map.at(8, 2).addItem(new SterilisationBox());
-        map.at(7, 3).setGround(new Supercomputer());
+        map.at(5, 3).setGround(new Supercomputer(quotaSystem));
     }
 
     private void placeFacilityItems99(GameMap map) {
@@ -159,7 +162,7 @@ public class EclipseNebula extends World {
         map.at(45, 3).addItem(new AlienCube());
         map.at(43, 14).addItem(new AlienCube());
         map.at(32, 5).addItem(new AlienCube());
-        map.at(33, 5).setGround(new Supercomputer());
+        map.at(33, 5).setGround(new Supercomputer(quotaSystem)); // EDITED
 
         map.at(7, 3).addItem(new AccessCardLevel2());
         map.at(8, 3).addItem(new AccessCardLevel3());
@@ -186,7 +189,7 @@ public class EclipseNebula extends World {
         map.addActor(new AnomalousMannequin(), map.at(14, 7));
 
         map.at(12, 7).addItem(new Apple());
-        map.at(13, 7).addItem(new Cookies   ());
+        map.at(13, 7).addItem(new Cookies());
     }
 
     private void configureTeleportationTubes(GameMap map99, GameMap map20) {
@@ -197,7 +200,6 @@ public class EclipseNebula extends World {
             tube99.addDestination(new TeleportDestination(map99, map99.at(18, 2), "99-Deprecated facility entrance"));
             tube99.addDestination(new TeleportDestination(map20, map20.at(6, 3), "20-Overflow armoured ship"));
             tube99.addDestination(new TeleportDestination(map20, map20.at(31, 5), "20-Overflow factory floor"));
-
         }
 
         if (tube20 != null) {
@@ -252,7 +254,6 @@ public class EclipseNebula extends World {
         map20.at(18, 12).setGround(new Vent(new VentCreatureSpawner()));
     }
 
-
     /**
      * Adds workers to the starting map.
      *
@@ -260,18 +261,17 @@ public class EclipseNebula extends World {
      * @throws Exception if workers cannot be added
      */
     private void addWorkers(GameMap map) throws Exception {
-       ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
-       ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
-       ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
-       ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
-       ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
+        ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
+        //ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
+        //ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
+        //ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
+        //ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
 
         this.addPlayer(contractedWorker1, map.at(5, 3));
-        this.addPlayer(contractedWorker2, map.at(13, 2));
-        this.addPlayer(contractedWorker3, map.at(8, 2));
-        this.addPlayer(contractedWorker4, map.at(6, 4));
-        this.addPlayer(contractedWorker5, map.at(8, 4));
-
+        //this.addPlayer(contractedWorker2, map.at(13, 2));
+        //this.addPlayer(contractedWorker3, map.at(8, 2));
+        //this.addPlayer(contractedWorker4, map.at(6, 4));
+        //this.addPlayer(contractedWorker5, map.at(8, 4));
     }
 
     private Inventory createStartingInventory() {
@@ -283,6 +283,7 @@ public class EclipseNebula extends World {
     @Override
     protected void gameLoop() throws edu.monash.fit2099.engine.GameEngineException {
         alarmSystem.tick();
+        quotaSystem.tick();
         super.gameLoop();
     }
 }

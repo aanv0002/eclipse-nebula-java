@@ -47,7 +47,7 @@ public class Undead extends Actor implements Infectable {
     }
 
     public Undead() {
-        super("#" + counter++ + " Undead", 'u', 15, new BasicInventory());
+        super("#" + counter++ + " Undead", 'Ѫ', 15, new BasicInventory());
         this.enableAbility(ActorCapabilities.HOSTILE_TO_WORKER);
         this.enableAbility(ActorCapabilities.CREATURE);
         this.enableAbility(ActorCapabilities.UNDEAD);

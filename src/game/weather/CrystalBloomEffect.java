@@ -1,6 +1,5 @@
 package game.weather;
 
-import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import game.grounds.SolarCrystal;
@@ -8,33 +7,19 @@ import game.grounds.SolarCrystal;
 import java.util.List;
 
 /**
- * Effect that energises solar crystals and causes nearby spreading.
+ * Effect that activates newly spawned solar crystals.
+ *
+ * The spreading itself is handled by SolarCrystal on later ground ticks,
+ * so crystal spreading happens after the weather event turn instead of
+ * immediately on the same turn.
  *
  * @author Tan Hong Sze
- * @version 2.0
+ * @version 2.1
  */
 public class CrystalBloomEffect implements WeatherEffect<SolarCrystal> {
 
-    private static final double SPREAD_CHANCE = 0.25;
-
     @Override
     public String apply(GameMap map, List<Location> locations, List<SolarCrystal> crystals) {
-        int spreadCount = 0;
-
-        for (Location source : locations) {
-            for (Exit exit : source.getExits()) {
-                Location adjacent = exit.getDestination();
-
-                if (!adjacent.containsAnActor()
-                        && adjacent.getItems().isEmpty()
-                        && Math.random() < SPREAD_CHANCE) {
-                    adjacent.setGround(new SolarCrystal(adjacent.getGround()));
-                    spreadCount++;
-                }
-            }
-        }
-
-        return "Solar crystals pulse and spread to "
-                + spreadCount + " nearby tile(s).";
+        return "Solar crystals begin pulsing and may spread on the next turns.";
     }
 }

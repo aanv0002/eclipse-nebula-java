@@ -4,162 +4,300 @@
 
 The Eclipse Weather System introduces unstable moon-wide weather events that periodically alter the battlefield.
 
-Each weather event performs its own targeting logic, spawns a unique environmental anomaly, and triggers a corresponding effect that changes actors, items, terrain, movement or statuses.
+The system consists of three weather events: Crystal Bloom, Fungal Bloom and Gravity Surge. Each weather event creates a unique anomaly that remains in the world and continues affecting the game state after the weather event has ended.
 
 ---
 
 ## The Mechanics
 
-- A `WeatherController` periodically triggers weather events during the game loop.
-- Each `WeatherEvent` scans the map and chooses affected locations.
-- Each `WeatherEvent` spawns a unique anomaly ground.
-- Each `WeatherEvent` triggers its corresponding `WeatherEffect`.
-- Each `WeatherEffect` applies complex secondary consequences.
-- The system interacts with actors, grounds, items, statuses, movement and environmental hazards.
+* A `WeatherController` periodically triggers weather events during the game loop every 10 turns.
+* Each `WeatherEvent` scans the map and determines suitable target locations and spawns a unique anomaly ground.
+* Each anomaly remains active for several turns and continues affecting the surrounding environment.
+* Each weather event triggers a corresponding `WeatherEffect`.
+* Weather effects interact with multiple game components including:
+
+    * actors,
+    * grounds,
+    * statuses,
+    * consumable items,
+    * movement,
+    * loose ground items.
 
 ---
 
-## Crystal Bloom Weather
+# Crystal Bloom Weather
 
-### Weather Event
+## Weather Event
 
-`CrystalBloomWeather`
+### `CrystalBloomWeather`
 
 Responsibilities:
 
-- Scans exposed and enterable tiles.
-- Selects valid crystal bloom locations.
-- Spawns `SolarCrystal` grounds.
-- Triggers `CrystalBloomEffect`.
+* Scans the map for locations near actors.
+* Selects nearby unoccupied locations.
+* Spawns `SolarCrystal` grounds (`*`).
+* Triggers `CrystalBloomEffect`.
 
-### Weather Effect
+### Spawned Anomaly
 
-`CrystalBloomEffect`
+### `SolarCrystal` (`*`)
+
+Represents unstable solar crystals that spread across the terrain.
 
 Behaviour:
 
-- Causes SolarCrystals to spread to nearby valid tiles.
-- When stepped on, SolarCrystal explodes.
-- Explosion damages nearby actors.
-- Workers affected by the explosion receive `BlindStatus`.
-- `BlindStatus` forces random movement on the worker’s next turn.
+* Has a chance to spread to nearby valid tiles (even walls).
+* Explodes when stepped on by an actor.
+* Damages nearby actors in an area-of-effect blast.
+* Applies `BlindStatus` to affected actors.
+* Disappears after exploding.
 
----
+## Weather Effect
 
-## Fungal Bloom Weather
-
-### Weather Event
-
-`FungalBloomWeather`
+### `CrystalBloomEffect`
 
 Responsibilities:
 
-- Scans damp or fertile areas (nearby puddles).
-- Selects valid fungal bloom locations.
-- Spawns `SporeNest` grounds.
-- Triggers `FungalBloomEffect`.
+* Activates newly created `SolarCrystal` grounds after they are spawned by `CrystalBloomWeather`.
+* Displays that SolarCrystals have begun pulsing and may spread on later turns.
+* The actual spreading is handled by `SolarCrystal` during later ground ticks.
 
-### Weather Effect
+## Status Effect
 
-`FungalBloomEffect`
+### `BlindStatus`
 
 Behaviour:
 
-- SporeNest incubates for several turns.
-- After incubation, it releases `Spores` and disappears.
-- `Spores` mutate nearby `Apple` into `MoldedApple`.
-- `Spores` mutate nearby `Cookies` into `MoldedCookies`.
-- Molded consumables apply `RootStatus` when consumed.
-- `RootStatus` prevents the actor from moving for the next turn.
+* Applied by SolarCrystal explosions.
+* Causes affected workers to lose directional control.
+* The worker performs a random movement instead of a chosen movement action.
 
 ---
 
-## Gravity Surge Weather
+# Fungal Bloom Weather
 
-### Weather Event
+## Weather Event
 
-`GravitySurgeWeather`
+### `FungalBloomWeather`
 
 Responsibilities:
 
-- Scans the map for actor-heavy or item-heavy zones.
-- Selects gravity centre locations.
-- Spawns `GravityAnchor` grounds.
-- Triggers `GravitySurgeEffect`.
+* Searches for damp environments near puddles.
+* Selects suitable fungal growth locations.
+* Spawns `SporeNest` grounds (`Ⓢ`).
+* Triggers `FungalBloomEffect`.
 
-### Weather Effect
+### Spawned Anomaly
 
-`GravitySurgeEffect`
+### `SporeNest` (`Ⓢ`)
+
+Represents a growing fungal colony.
 
 Behaviour:
 
-- Pulls nearby actors toward the GravityAnchor.
-- Pulls loose ground items toward the GravityAnchor.
-- Relocates actors and items dynamically.
+* Incubates for several turns after spawning.
+* Tracks an incubation timer.
+* Releases a single spores after incubation completes.
+* Removes itself after releasing spores.
+* Restores the original ground beneath it.
+
+## Weather Effect
+
+### `FungalBloomEffect`
+
+Responsibilities:
+
+* Activates newly created `SporeNest` grounds after they are spawned by `FungalBloomWeather`.
+* Does not release `Spores` immediately during the weather event.
+* Displays that SporeNest grounds have started incubating.
+* The actual spore release is handled by `SporeNest` after its incubation timer reaches zero.
+
+## Spawned Actor
+
+### `Spores` (`웃`)
+
+Represents living fungal spores released by a SporeNest.
+
+Behaviour:
+
+* Searches surrounding tiles for moldable food.
+* Mutates nearby Apples into Molded Apples.
+* Mutates nearby Cookies into Molded Cookies.
+* Disappears after completing its mutation cycle.
+
+## Mutated Consumables
+
+### `MoldedApple` (`õ`)
+
+Behaviour:
+
+* Created when spores mutate an Apple.
+* Can still be consumed by workers.
+* Applies `RootStatus` when consumed.
+
+### `MoldedCookies` (`ĉ`)
+
+Behaviour:
+
+* Created when spores mutate Cookies.
+* Can still be consumed by workers.
+* Applies `RootStatus` when consumed.
+
+## Status Effect
+
+### `RootStatus`
+
+Behaviour:
+
+* Applied by MoldedApple and MoldedCookies.
+* Prevents movement for 3 turns but still able to do actions.
+* Causes the affected worker to lose their next movement opportunity.
 
 ---
 
-## Architecture
+# Gravity Surge Weather
 
-### New Abstraction 1: `WeatherEvent`
+## Weather Event
 
-`WeatherEvent` represents a weather event that targets locations and spawns an anomaly.
+### `GravitySurgeWeather`
+
+Responsibilities:
+
+* Scans the map for areas containing loose items.
+* Randomly selects one nearby locations as gravity centres.
+* Spawns `GravityAnchor` grounds (`֍`).
+* Triggers `GravitySurgeEffect` to activate the spawned anchor.
+
+### Spawned Anomaly
+
+### `GravityAnchor` (`֍`)
+
+Represents a temporary gravitational anomaly.
+
+Behaviour:
+
+* Stabilises on the map on its first ground tick
+* Pulls nearby actors and loose ground items toward itself.
+* Changes actor positioning and item placement.
+* Restores the original ground when the anomaly expires.
+
+## Weather Effect
+
+### `GravitySurgeEffect`
+
+Responsibilities:
+
+* Activates newly spawned `GravityAnchor` grounds.
+* Displays that the anchors are stabilising.
+* Leaves the actual pulling behaviour to `GravityAnchor` on its later ground tick.
+
+---
+
+# Architecture
+
+## New Abstraction 1: `WeatherEvent`
+
+Represents a moon-wide weather event.
+
+Responsibilities:
+
+* Select target locations.
+* Spawn anomaly grounds.
+* Trigger corresponding weather effects.
 
 Concrete implementations:
 
-- `CrystalBloomWeather`
-- `FungalBloomWeather`
-- `GravitySurgeWeather`
-
-### New Abstraction 2: `WeatherEffect`
-
-`WeatherEffect` represents the secondary consequence caused by the spawned anomaly.
-
-Concrete implementations:
-
-- `CrystalBloomEffect`
-- `FungalBloomEffect`
-- `GravitySurgeEffect`
+* `CrystalBloomWeather`
+* `FungalBloomWeather`
+* `GravitySurgeWeather`
 
 ---
 
-## New Classes and Supporting Classes
+## New Abstraction 2: `WeatherEffect<T>`
 
-### Required New Abstractions
+Represents the secondary environmental consequence caused by a weather event.
 
-- `WeatherEvent`
-- `WeatherEffect`
+Responsibilities:
 
-### Required Concrete Classes
+* Operate on anomaly objects created by weather events.
+* Modify the game state through movement, statuses, item mutation, terrain effects, or anomaly activation.
 
-- `CrystalBloomWeather`
-- `FungalBloomWeather`
-- `GravitySurgeWeather`
-- `CrystalBloomEffect`
-- `FungalBloomEffect`
-- `GravitySurgeEffect`
+Concrete implementations:
 
-### Supporting Ground Classes
+* `CrystalBloomEffect`
+* `FungalBloomEffect`
+* `GravitySurgeEffect`
 
-- `SolarCrystal`
-- `SporeNest`
-- `GravityAnchor`
+---
 
-### Supporting Actor Classes
+# New Classes and Supporting Classes
 
-- `Spores`
+## Required New Abstractions
 
-### Supporting Item Classes
+### `WeatherEvent`
 
-- `MoldedApple`
-- `MoldedCookies`
+Implemented by:
 
-### Supporting Status Classes
+* `CrystalBloomWeather`
+* `FungalBloomWeather`
+* `GravitySurgeWeather`
 
-- `BlindStatus`
-- `RootStatus`
+### `WeatherEffect<T>`
 
-### Higher-Level Class
+Implemented by:
 
-- `WeatherController`
+* `CrystalBloomEffect`
+* `FungalBloomEffect`
+* `GravitySurgeEffect`
 
+---
+
+## Supporting Ground Classes
+
+* `SolarCrystal` (`*`)
+* `SporeNest` (`Ⓢ`)
+* `GravityAnchor` (`֍`)
+
+---
+
+## Supporting Actor Classes
+
+* `Spores` (`웃`)
+
+---
+
+## Supporting Item Classes
+
+* `MoldedApple` (`õ`)
+* `MoldedCookies` (`ĉ`)
+
+---
+
+## Supporting Status Classes
+
+* `BlindStatus`
+* `RootStatus`
+
+---
+
+## Supporting Abstractions
+
+* `Moldable`
+
+Implemented by:
+
+* `Apple`
+* `Cookies`
+
+---
+
+## Higher-Level Class
+
+### `WeatherController`
+
+Responsibilities:
+
+* Stores all available weather events.
+* Cycles through weather events periodically.
+* Triggers weather events during gameplay.
+* Integrates the weather system into EclipseNebula.

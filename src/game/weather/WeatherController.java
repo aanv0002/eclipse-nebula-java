@@ -16,7 +16,7 @@ public class WeatherController {
     /**
      * Number of turns between weather events.
      */
-    private static final int WEATHER_INTERVAL = 2;
+    private static final int WEATHER_INTERVAL = 10;
 
     private final List<WeatherEvent> events;
     private int turnCounter;

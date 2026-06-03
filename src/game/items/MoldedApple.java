@@ -37,7 +37,7 @@ public class MoldedApple extends Item implements Consumable {
 
     @Override
     public String getConsumeDescription() {
-        return "eats the molded apple";
+        return "eats the Molded Apple";
     }
 
     @Override

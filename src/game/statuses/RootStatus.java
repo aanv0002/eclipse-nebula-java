@@ -5,21 +5,21 @@ import edu.monash.fit2099.engine.capabilities.Status;
 import edu.monash.fit2099.engine.positions.Location;
 
 /**
- * A status that prevents an actor from moving for one turn.
- * The movement blocking logic is handled by ContractedWorker.
+ * A status that prevents an actor from choosing movement actions for three turns.
  *
  * @author Tan Hong Sze
- * @version 1.0
+ * @version 1.2
  */
 public class RootStatus implements Status {
 
     private int remainingTurns;
 
-    /**
-     * Creates root status for one turn.
-     */
     public RootStatus() {
-        this.remainingTurns = 1;
+        this.remainingTurns = 4;
+    }
+
+    public int getRemainingTurns() {
+        return remainingTurns;
     }
 
     @Override

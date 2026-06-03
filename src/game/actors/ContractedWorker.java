@@ -50,9 +50,17 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
             return new DoNothingAction();
         }
 
-        if (!this.statusesOf(game.statuses.RootStatus.class).isEmpty()) {
-            display.println(this + " is rooted and cannot move this turn.");
-            return new DoNothingAction();
+        java.util.List<game.statuses.RootStatus> rootStatuses =
+                this.statusesOf(game.statuses.RootStatus.class);
+
+        if (!rootStatuses.isEmpty()) {
+            game.statuses.RootStatus rootStatus = rootStatuses.get(0);
+
+            display.println(this + " is rooted for "
+                    + rootStatus.getRemainingTurns()
+                    + " more turn(s) and cannot move.");
+
+            actions = removeMovementActions(actions);
         }
 
         if (!this.statusesOf(game.statuses.BlindStatus.class).isEmpty()) {
@@ -79,6 +87,26 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
 
         Menu menu = new Menu(actions);
         return menu.showMenu(this, display);
+    }
+
+    /**
+     * Removes movement actions while keeping non-movement actions available.
+     *
+     * @param actions original action list
+     * @return filtered action list without movement actions
+     */
+    private ActionList removeMovementActions(ActionList actions) {
+        ActionList filteredActions = new ActionList();
+
+        for (Action action : actions) {
+            String description = action.menuDescription(this);
+
+            if (!description.contains("moves")) {
+                filteredActions.add(action);
+            }
+        }
+
+        return filteredActions;
     }
 
     @Override

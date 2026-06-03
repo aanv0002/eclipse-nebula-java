@@ -7,32 +7,19 @@ import game.grounds.SporeNest;
 import java.util.List;
 
 /**
- * Effect that accelerates fungal nest incubation and may release spores
- * immediately.
+ * Effect that activates newly spawned SporeNest grounds.
+ *
+ * This effect does not release spores immediately. The SporeNest handles its
+ * own incubation timer and releases Spores after several ground ticks.
  *
  * @author Tan Hong Sze
- * @version 2.0
+ * @version 2.1
  */
 public class FungalBloomEffect implements WeatherEffect<SporeNest> {
 
     @Override
     public String apply(GameMap map, List<Location> locations, List<SporeNest> nests) {
-        int accelerated = 0;
-        int released = 0;
-
-        for (int i = 0; i < nests.size(); i++) {
-            SporeNest nest = nests.get(i);
-            Location location = locations.get(i);
-
-            if (nest.accelerateIncubation(location)) {
-                released++;
-            } else {
-                accelerated++;
-            }
-        }
-
-        return "Fungal energy accelerates "
-                + accelerated + " SporeNest ground(s), and "
-                + released + " release spores immediately.";
+        return "SporeNest ground(s) begin incubating. "
+                + "They will release Spores after a few turns.";
     }
 }

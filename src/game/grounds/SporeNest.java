@@ -2,32 +2,29 @@ package game.grounds;
 
 import edu.monash.fit2099.engine.GameEngineException;
 import edu.monash.fit2099.engine.actors.Actor;
+import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Ground;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actors.Spores;
 
 /**
- * A fungal nest that incubates before releasing spores.
+ * A fungal nest that incubates for a fixed number of turns before releasing one Spores actor.
+ *
+ * The nest displays a countdown every turn. When it says 1 turn remaining,
+ * it does not release immediately in the same tick. It releases on the next tick.
  *
  * @author Tan Hong Sze
- * @version 1.1
+ * @version 2.3
  */
 public class SporeNest extends Ground {
 
     private static final int INCUBATION_TURNS = 3;
-    private static final int ACCELERATION_AMOUNT = 2;
 
     private final GameMap map;
     private final Ground previousGround;
     private int remainingTurns;
 
-    /**
-     * Creates a spore nest.
-     *
-     * @param map map containing this nest
-     * @param previousGround previous ground
-     */
     public SporeNest(GameMap map, Ground previousGround) {
         super('Ⓢ', "Spore Nest");
         this.map = map;
@@ -42,32 +39,21 @@ public class SporeNest extends Ground {
 
     @Override
     public void tick(Location location) {
-        remainingTurns--;
+        if (remainingTurns > 0) {
+            new Display().println("Spore Nest at ("
+                    + location.x() + "," + location.y()
+                    + ") is incubating and will release Spores in "
+                    + remainingTurns + " turn(s).");
 
-        if (remainingTurns <= 0) {
-            releaseSpores(location);
+            remainingTurns--;
+            return;
         }
+
+        releaseSpores(location);
     }
 
     /**
-     * Accelerates incubation. If the nest is ready, spores are released.
-     *
-     * @param location nest location
-     * @return true if spores were released
-     */
-    public boolean accelerateIncubation(Location location) {
-        remainingTurns -= ACCELERATION_AMOUNT;
-
-        if (remainingTurns <= 0) {
-            releaseSpores(location);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Releases spores and restores the previous ground.
+     * Releases exactly one Spores actor and restores the previous ground.
      *
      * @param location nest location
      */
@@ -75,8 +61,13 @@ public class SporeNest extends Ground {
         if (!location.containsAnActor()) {
             try {
                 map.addActor(new Spores(), location);
+                new Display().println("Spore Nest at ("
+                        + location.x() + "," + location.y()
+                        + ") releases 1 Spores.");
             } catch (GameEngineException ignored) {
-                // If spawning fails, the nest still disappears.
+                new Display().println("Spore Nest at ("
+                        + location.x() + "," + location.y()
+                        + ") tries to release Spores, but the tile is blocked.");
             }
         }
 

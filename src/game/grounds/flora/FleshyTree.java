@@ -21,14 +21,16 @@ public abstract class FleshyTree extends Ground {
      * Variable which counts turns for growth
      */
     private int turnCounter = 0;
+    protected final FleshyTreeType treeType;
 
     /**
      * Constructor
      * @param displayChar display character
      * @param name ground name
      */
-    public FleshyTree(char displayChar, String name) {
+    public FleshyTree(char displayChar, String name, FleshyTreeType treeType) {
         super(displayChar, name);
+        this.treeType = treeType;
     }
 
     /**

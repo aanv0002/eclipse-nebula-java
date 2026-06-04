@@ -12,8 +12,8 @@ public class FleshySapling extends FleshyTree {
     /**
      * creates a fleshy sapling
      */
-    public FleshySapling() {
-        super('v', "Fleshy Sapling");
+    public FleshySapling(FleshyTreeType treeType) {
+        super('v', "Fleshy Sapling", treeType);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class FleshySapling extends FleshyTree {
 
     @Override
     protected Ground getNextStage() {
-        return new FleshyMatureTree();
+        return new FleshyMatureTree(treeType);
     }
 }

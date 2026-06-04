@@ -6,9 +6,11 @@ import edu.monash.fit2099.engine.positions.Location;
 /**
  * Final stage of a warper tree
  * @author Amra Anver
- * @version 1.0
+ * @version 2.0
  */
 public class WarperMatureTree extends WarperTree {
+
+    private final WorkerWarpService warpService = new WorkerWarpService();
     /**
      * Creates a warper mature tree
      */
@@ -18,7 +20,7 @@ public class WarperMatureTree extends WarperTree {
 
     @Override
     protected boolean performSpecialAction(Location location) {
-        return warpNearbyWorker(location);
+        return warpService.warpNearbyWorker(location);
     }
 
     @Override

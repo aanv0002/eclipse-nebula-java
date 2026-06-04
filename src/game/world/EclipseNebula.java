@@ -19,7 +19,15 @@ import game.spawners.HoleCreatureSpawner;
 import game.teleport.TeleportDestination;
 import game.teleport.Teleportable;
 import game.spawners.VentCreatureSpawner;
-
+import game.grounds.AcidPool;
+import game.grounds.ChargedFloor;
+import game.grounds.LaserBarrierGround;
+import game.security.DefuseKit;
+import game.security.GravityCore;
+import game.security.LaserBarrier;
+import game.security.PurgeCanister;
+import game.security.SpikeDrone;
+import game.security.StaticPylon;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,6 +84,11 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('w', WarperSapling::new);
         groundCreator.registerGround('W', WarperMatureTree::new);
 
+        // REQ 4 GROUND TILE REGISTRATION
+        groundCreator.registerGround('a', AcidPool::new);
+        groundCreator.registerGround('Z', ChargedFloor::new);
+        groundCreator.registerGround('|', LaserBarrierGround::new);
+        groundCreator.registerGround('P', StaticPylon::new);
         List<String> moon99Deprecated = Arrays.asList(
                 "....................########################################",
                 "...#######.......o..#__________________#________________o__#",
@@ -140,6 +153,8 @@ public class EclipseNebula extends World {
         configureMagicCircles(map20);
 
         placeReq5TestingArea(map99);
+        placeReq4TestingArea(map99);
+
 
         addWorkers(map99);
     }
@@ -180,6 +195,25 @@ public class EclipseNebula extends World {
         map.at(9,11).setGround(new FleshySprout(FleshyTreeType.OVERFLOW));
 
         map.at(12,10).setGround(new WarperSapling());
+    }
+    /**
+     * Spawns REQ4 items and hazards onto the map for easy testing.
+     * @param map The map to place them on.
+     */
+    private void placeReq4TestingArea(GameMap map) {
+        try {
+            // Place hazards
+            map.at(10, 4).setGround(new StaticPylon());
+            map.at(9, 4).addItem(new GravityCore());
+            map.addActor(new SpikeDrone(), map.at(11, 4));
+
+            // Place countermeasures near the worker spawn
+            map.at(5, 4).addItem(new DefuseKit());
+            map.at(5, 5).addItem(new PurgeCanister());
+            map.at(5, 6).addItem(new LaserBarrier());
+        } catch (Exception e) {
+            System.out.println("Could not place REQ4 Testing Area. Check map bounds.");
+        }
     }
 
     /**

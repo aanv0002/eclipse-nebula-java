@@ -16,9 +16,10 @@ import game.inventory.WeightLimitedInventory;
 import game.items.*;
 import game.quota.QuotaSystem;
 import game.spawners.HoleCreatureSpawner;
+import game.spawners.VentCreatureSpawner;
 import game.teleport.TeleportDestination;
 import game.teleport.Teleportable;
-import game.spawners.VentCreatureSpawner;
+import game.weather.WeatherController;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,25 +31,54 @@ import java.util.List;
  * @author Raima
  * @author Shrabonti Majumder
  * @author Amra Anver
- * @version 2.0
+ * @version 3.0
  */
 public class EclipseNebula extends World {
 
+    /**
+     * Maximum weight each worker can carry.
+     */
     public static final int WORKER_WEIGHT_LIMIT = 50;
 
+    /**
+     * Facility alarm system.
+     */
     private final AlarmSystem alarmSystem;
     private final QuotaSystem quotaSystem; // ADDED
 
+    /**
+     * Weather controller for REQ3 weather events.
+     */
+    private final WeatherController weatherController;
+
+    /**
+     * 99-Deprecated map reference used for game loop weather testing.
+     */
+    private GameMap map99;
+
+    /**
+     * 20-Overflow map reference used for game loop weather testing.
+     */
+    private GameMap map20;
+
+    /**
+     * Creates the Eclipse Nebula world.
+     *
+     * @param display display object
+     */
     public EclipseNebula(Display display) {
         super(display);
         this.alarmSystem = new AlarmSystem();
+        this.weatherController = new WeatherController();
         this.quotaSystem = new QuotaSystem(); // ADDED
+
         Undead.setAlarmSystem(alarmSystem);
         UnlockDoorAction.setAlarmSystem(alarmSystem);
     }
 
     /**
-     * Initialises maps, actors, grounds, items, teleporters, doors, and REQ5 test area.
+     * Initialises maps, actors, grounds, items, teleporters, doors,
+     * testing areas and weather systems.
      *
      * @throws Exception if setup fails
      */
@@ -80,7 +110,7 @@ public class EclipseNebula extends World {
                 "....................########################################",
                 "...#######.......o..#__________________#________________o__#",
                 "...#_____#..........=__________________=___________________#",
-                "...#__Φ__=...~......#__________________#___________________#",
+                "...#_____=...~......#__________________#___________________#",
                 "...#_____#..~!~.....########=#####=#####___#############___#",
                 "...#######.~~~~.....#______#_#_________#___#___________#___#",
                 ".........~~~~..!....#______#_#_________#####___________#####",
@@ -122,15 +152,15 @@ public class EclipseNebula extends World {
                 ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈"
         );
 
-        GameMap map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
-        GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
+        this.map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
+        this.map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
 
         configureOverflowSpawners(map20, moon20Overflow);
 
         this.addGameMap(map99);
         this.addGameMap(map20);
 
-        placeUniqueShipItems(map99);
+        //placeUniqueShipItems(map99);
         placeFacilityItems99(map99);
         placeFacilityItems20(map20);
         placeFlora99(map99);
@@ -139,11 +169,17 @@ public class EclipseNebula extends World {
         configureTeleportationTubes(map99, map20);
         configureMagicCircles(map20);
 
-        placeReq5TestingArea(map99);
+        placeReq3TestingArea(map99);
+        //placeReq5TestingArea(map99);
 
         addWorkers(map99);
     }
 
+    /**
+     * Places unique ship items.
+     *
+     * @param map target map
+     */
     private void placeUniqueShipItems(GameMap map) {
         map.at(6, 2).addItem(new AccessCardLevel1());
         map.at(7, 2).addItem(new FirstAidKit());
@@ -151,6 +187,11 @@ public class EclipseNebula extends World {
         map.at(5, 3).setGround(new Supercomputer(quotaSystem));
     }
 
+    /**
+     * Places facility items on 99-Deprecated.
+     *
+     * @param map target map
+     */
     private void placeFacilityItems99(GameMap map) {
         map.at(11, 3).addItem(new Apple());
         map.at(12, 3).addItem(new Cookies());
@@ -159,6 +200,11 @@ public class EclipseNebula extends World {
         map.at(15, 3).addItem(new CRTMonitor());
     }
 
+    /**
+     * Places facility items on 20-Overflow.
+     *
+     * @param map target map
+     */
     private void placeFacilityItems20(GameMap map) {
         map.at(45, 3).addItem(new AlienCube());
         map.at(43, 14).addItem(new AlienCube());
@@ -168,6 +214,16 @@ public class EclipseNebula extends World {
         map.at(7, 3).addItem(new AccessCardLevel2());
         map.at(8, 3).addItem(new AccessCardLevel3());
     }
+
+
+    /**
+     * Places flora testing grounds.
+     *
+     * @param map target map
+     */
+    private void placeFlora(GameMap map) {
+        map.at(9, 11).setGround(new FleshySprout());
+        map.at(12, 10).setGround(new WarperSapling());
 
     private void placeFlora99(GameMap map) {
 
@@ -180,19 +236,33 @@ public class EclipseNebula extends World {
         map.at(9,11).setGround(new FleshySprout(FleshyTreeType.OVERFLOW));
 
         map.at(12,10).setGround(new WarperSapling());
+
     }
 
     /**
-     * Places REQ5 testing objects close to the starting area.
+     * Places REQ3 weather testing objects near the starting area.
      *
-     * Testing guide:
-     * - The mannequin starts at (10, 3).
-     * - Items near it help trigger ActiveState.
-     * - Moving close to it helps trigger StalkingState.
-     * - Standing adjacent to it helps trigger BerserkState.
+     * @param map target map
+     */
+    private void placeReq3TestingArea(GameMap map) {
+        map.at(10, 6).addItem(new Apple());
+        map.at(11, 6).addItem(new Cookies());
+        map.at(12, 6).addItem(new Apple());
+        map.at(13, 6).addItem(new Cookies());
+
+        map.at(10, 7).addItem(new Lantern());
+        map.at(11, 7).addItem(new FloppyDisk());
+        map.at(12, 7).addItem(new CRTMonitor());
+
+        map.at(9, 6).setGround(new Puddle());
+        map.at(9, 7).setGround(new Puddle());
+    }
+
+    /**
+     * Places REQ5 mannequin testing objects close to the starting area.
      *
      * @param map test map
-     * @throws Exception if the mannequin cannot be added
+     * @throws Exception if actor cannot be added
      */
     private void placeReq5TestingArea(GameMap map) throws Exception {
         map.addActor(new AnomalousMannequin(), map.at(14, 7));
@@ -201,6 +271,12 @@ public class EclipseNebula extends World {
         map.at(13, 7).addItem(new Cookies());
     }
 
+    /**
+     * Configures teleportation tubes.
+     *
+     * @param map99 99-Deprecated map
+     * @param map20 20-Overflow map
+     */
     private void configureTeleportationTubes(GameMap map99, GameMap map20) {
         Teleportable tube99 = map99.at(6, 3).getGroundAs(Teleportable.class);
         Teleportable tube20 = map20.at(6, 3).getGroundAs(Teleportable.class);
@@ -217,6 +293,11 @@ public class EclipseNebula extends World {
         }
     }
 
+    /**
+     * Configures magic circles.
+     *
+     * @param map20 target map
+     */
     private void configureMagicCircles(GameMap map20) {
         List<TeleportDestination> destinations = new java.util.ArrayList<>();
         List<Teleportable> magicCircles = new java.util.ArrayList<>();
@@ -243,15 +324,14 @@ public class EclipseNebula extends World {
 
     /**
      * Configures 20-Overflow-only spawners.
-     * Holes in 20-Overflow spawn Undead and Parasites, while vents spawn
-     * Parasites and Slimes.
      *
-     * @param map20 the 20-Overflow map
+     * @param map20 target map
      * @param moon20Overflow source map strings
      */
     private void configureOverflowSpawners(GameMap map20, List<String> moon20Overflow) {
         for (int y = 0; y < moon20Overflow.size(); y++) {
             String row = moon20Overflow.get(y);
+
             for (int x = 0; x < row.length(); x++) {
                 if (row.charAt(x) == 'o') {
                     map20.at(x, y).setGround(new Hole(HoleCreatureSpawner.forOverflowMoon()));
@@ -267,22 +347,28 @@ public class EclipseNebula extends World {
      * Adds workers to the starting map.
      *
      * @param map starting map
-     * @throws Exception if workers cannot be added
+     * @throws Exception if worker cannot be added
      */
     private void addWorkers(GameMap map) throws Exception {
         ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
-        //ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
-        //ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
-        //ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
-        //ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
+     //   ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
+     //   ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
+     //   ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
+     //   ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
 
-        this.addPlayer(contractedWorker1, map.at(5, 3));
-        //this.addPlayer(contractedWorker2, map.at(13, 2));
-        //this.addPlayer(contractedWorker3, map.at(8, 2));
-        //this.addPlayer(contractedWorker4, map.at(6, 4));
-        //this.addPlayer(contractedWorker5, map.at(8, 4));
+        this.addPlayer(contractedWorker1, map.at(10, 3));
+     //   this.addPlayer(contractedWorker2, map.at(13, 2));
+     //   this.addPlayer(contractedWorker3, map.at(8, 2));
+    //    this.addPlayer(contractedWorker4, map.at(6, 4));
+     //   this.addPlayer(contractedWorker5, map.at(8, 4));
+
+
     }
-
+        /**
+         * Creates starting inventory.
+         *
+         * @return inventory
+         */
     private Inventory createStartingInventory() {
         Inventory inventory = new WeightLimitedInventory(WORKER_WEIGHT_LIMIT);
         inventory.add(new Flask());
@@ -292,7 +378,14 @@ public class EclipseNebula extends World {
     @Override
     protected void gameLoop() throws edu.monash.fit2099.engine.GameEngineException {
         alarmSystem.tick();
+
+        String weatherResult99 = weatherController.tick(map99);
+        if (!weatherResult99.isEmpty()) {
+            new Display().println(weatherResult99);
+        }
+
         quotaSystem.tick();
+
         super.gameLoop();
     }
 }

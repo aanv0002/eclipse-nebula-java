@@ -129,7 +129,7 @@ public class EclipseNebula extends World {
                 "....................########################################"
         );
 
-        List<String> moon20verflow = Arrays.asList(
+        List<String> moon20Overflow = Arrays.asList(
                 ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈",
                 "...#######...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈##################≈≈≈≈≈≈≈",
                 "...#_____#...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈#________________#≈≈≈≈≈≈≈",
@@ -155,7 +155,7 @@ public class EclipseNebula extends World {
         this.map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
         this.map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
 
-        configureOverflowSpawners(map20, moon20verflow);
+        configureOverflowSpawners(map20, moon20Overflow);
 
         this.addGameMap(map99);
         this.addGameMap(map20);
@@ -221,9 +221,6 @@ public class EclipseNebula extends World {
      *
      * @param map target map
      */
-    private void placeFlora(GameMap map) {
-        map.at(9, 11).setGround(new FleshySprout());
-        map.at(12, 10).setGround(new WarperSapling());
 
     private void placeFlora99(GameMap map) {
 

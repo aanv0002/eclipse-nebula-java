@@ -4,17 +4,19 @@ import edu.monash.fit2099.engine.actors.Actor;
 import game.actors.Parasite;
 import game.actors.Slime;
 import game.actors.Undead;
+import game.actors.ScrapSnatcher;
 
 import java.util.Arrays;
 
 /**
  * A creature spawner for holes.
- * Holes in 99-deprecated spawn Undead and Slimes, while holes in 20-overflow
+ * Holes in 99-deprecated spawn Undead, Slimes and ScrapSnatchers, while holes in 20-overflow
  * spawn Undead and Parasites.
  *
  * @author Tan Hong Sze
  * @author Shrabonti Majumder
- * @version 2.0
+ * @author Amra Anver
+ * @version 3.0
  */
 public class HoleCreatureSpawner implements CreatureSpawner {
 
@@ -35,10 +37,10 @@ public class HoleCreatureSpawner implements CreatureSpawner {
     /**
      * Creates the 99-deprecated hole spawner.
      *
-     * @return hole spawner for Undead and Slime
+     * @return hole spawner for Undead, Slime and Scrap Snatchers
      */
     public static HoleCreatureSpawner forDeprecatedMoon() {
-        return new HoleCreatureSpawner(new SpawnTable(Arrays.asList(Undead::new, Slime::new)));
+        return new HoleCreatureSpawner(new SpawnTable(Arrays.asList(Undead::new, Slime::new, ScrapSnatcher::new)));
     }
 
     /**

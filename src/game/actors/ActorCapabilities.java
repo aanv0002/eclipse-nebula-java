@@ -5,6 +5,7 @@ package game.actors;
  *
  * @author Tan Hong Sze
  * @author Shrabonti Majumder
+ * @author Amra Anver
  * @version 1.0
  */
 public enum ActorCapabilities {
@@ -13,5 +14,6 @@ public enum ActorCapabilities {
     CREATURE,
     UNDEAD,
     SLIME,
-    PARASITE
+    PARASITE,
+    SCRAP_SNATCHER
 }

@@ -69,6 +69,7 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('y', FleshySprout::new);
         groundCreator.registerGround('v', FleshySapling::new);
         groundCreator.registerGround('Y', FleshyMatureTree::new);
+        groundCreator.registerGround('H', FleshyMonolith::new);
         groundCreator.registerGround('w', WarperSapling::new);
         groundCreator.registerGround('W', WarperMatureTree::new);
 
@@ -129,8 +130,8 @@ public class EclipseNebula extends World {
         placeUniqueShipItems(map99);
         placeFacilityItems99(map99);
         placeFacilityItems20(map20);
-        placeFlora(map99);
-        placeFlora(map20);
+        placeFlora99(map99);
+        placeFLora20(map20);
 
         configureTeleportationTubes(map99, map20);
         configureMagicCircles(map20);
@@ -165,9 +166,17 @@ public class EclipseNebula extends World {
         map.at(8, 3).addItem(new AccessCardLevel3());
     }
 
-    private void placeFlora(GameMap map){
-        map.at(9, 11).setGround(new FleshySprout());
-        map.at(12, 10).setGround(new WarperSapling());
+    private void placeFlora99(GameMap map) {
+
+        map.at(9, 11).setGround(new FleshySprout(FleshyTreeType.DEPRECATED));
+
+        map.at(12,10).setGround(new WarperSapling());
+    }
+
+    private void placeFLora20(GameMap map) {
+        map.at(9,11).setGround(new FleshySprout(FleshyTreeType.OVERFLOW));
+
+        map.at(12,10).setGround(new WarperSapling());
     }
 
     /**

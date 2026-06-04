@@ -69,10 +69,10 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('!', () -> new AlarmTile(alarmSystem));
         groundCreator.registerGround('Φ', TeleportationTube::new);
         groundCreator.registerGround('◎', MagicCircle::new);
-        groundCreator.registerGround('y', FleshySprout::new);
-        groundCreator.registerGround('v', FleshySapling::new);
-        groundCreator.registerGround('Y', FleshyMatureTree::new);
-        groundCreator.registerGround('H', FleshyMonolith::new);
+        groundCreator.registerGround('y', () -> new FleshySprout(FleshyTreeType.OVERFLOW));
+        groundCreator.registerGround('v', () -> new FleshySapling(FleshyTreeType.OVERFLOW));
+        groundCreator.registerGround('Y', () -> new FleshyMatureTree(FleshyTreeType.OVERFLOW));
+        groundCreator.registerGround('H', () -> new FleshyMonolith(FleshyTreeType.DEPRECATED));
         groundCreator.registerGround('w', WarperSapling::new);
         groundCreator.registerGround('W', WarperMatureTree::new);
 
@@ -99,7 +99,7 @@ public class EclipseNebula extends World {
                 "....................########################################"
         );
 
-        List<String> moon20Overflow = Arrays.asList(
+        List<String> moon20verflow = Arrays.asList(
                 ".....................≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈",
                 "...#######...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈##################≈≈≈≈≈≈≈",
                 "...#_____#...........≈≈≈≈≈≈≈≈≈≈≈≈≈≈#________________#≈≈≈≈≈≈≈",
@@ -123,9 +123,9 @@ public class EclipseNebula extends World {
         );
 
         GameMap map99 = new GameMap("99-Deprecated", groundCreator, moon99Deprecated);
-        GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20Overflow);
+        GameMap map20 = new GameMap("20-Overflow", groundCreator, moon20verflow);
 
-        configureOverflowSpawners(map20, moon20Overflow);
+        configureOverflowSpawners(map20, moon20verflow);
 
         this.addGameMap(map99);
         this.addGameMap(map20);

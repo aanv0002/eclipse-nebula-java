@@ -52,6 +52,7 @@ public class AluminiumScrap extends Item implements Depositable {
         super("Aluminium Scrap", '%');
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
         this.makePortable();
+        this.enableAbility(ItemCapabilities.DEPOSITABLE);
     }
 
     /**

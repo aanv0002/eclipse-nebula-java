@@ -32,7 +32,7 @@ public class SolarCrystal extends Ground {
     /**
      * Chance for the crystal to spread each tick.
      */
-    private static final double SPREAD_CHANCE = 0.75;
+    private static final double SPREAD_CHANCE = 0.2;
 
     /**
      * Ground that existed before this crystal appeared.

@@ -4,13 +4,14 @@ import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actors.ActorCapabilities;
+import game.actors.ScrapSnatcher;
 import game.actors.Slime;
 import game.actors.Undead;
 
 /**
  * Spawns creatures for fleshy trees when the correct condition is met.
  * @author Amra Anver
- * @version 1.0
+ * @version 2.0
  */
 public class FleshyTreeCreatureSpawner implements CreatureSpawner {
 
@@ -47,7 +48,7 @@ public class FleshyTreeCreatureSpawner implements CreatureSpawner {
     }
 
     /**
-     * Spawns one Slime around the fleshy tree if a worker is beside the tree.
+     * Spawns one slime around the fleshy tree if a worker is beside the tree .
      *
      * @param treeLocation the location of the fleshy tree
      * @return true if a Slime was spawned
@@ -58,6 +59,20 @@ public class FleshyTreeCreatureSpawner implements CreatureSpawner {
         }
 
         return spawnAroundTree(treeLocation, new Slime());
+    }
+
+    /**
+     * Spawns one scrap snatcher around the fleshy tree if a worker is beside the tree on the 99-deprecated map.
+     *
+     * @param treeLocation the location of the fleshy tree
+     * @return true if a Scrap Snatcher was spawned
+     */
+    public boolean spawnScrapSnatcherIfWorkerNearby(Location treeLocation) {
+        if (!hasWorkerNearby(treeLocation)) {
+            return false;
+        }
+
+        return spawnAroundTree(treeLocation, new ScrapSnatcher());
     }
 
     /**

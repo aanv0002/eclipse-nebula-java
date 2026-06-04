@@ -16,18 +16,16 @@ import game.items.Consumable;
 import game.items.Wallet;
 import game.items.WalletCarrier;
 import game.statuses.InfectedStatus;
+import game.statuses.StunnedStatus;
 
 /**
  * This brave soul is capable of performing complex tasks such as picking up trash
  * off the floor, swiping plastic cards at stubborn doors, and drinking mystery
  * fluids to stay alive.
  *
- * The worker can also become infected by a Parasite, turning their body into a
- * living hive that takes damage and periodically spawns new Parasites.
- *
  * @author Tan Hong Sze
  * @author Shrabonti Majumder
- * @version 2.0
+ * @version 3.0
  */
 public class ContractedWorker extends Actor implements WalletCarrier, Infectable {
 
@@ -47,6 +45,11 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
     public Action playTurn(ActionList actions, Action lastAction, GameMap map, Display display) {
         if (!this.isConscious()) {
             this.unconscious(map);
+            return new DoNothingAction();
+        }
+
+        if (this.hasStatus(StunnedStatus.class)) {
+            display.println(this + " is stunned by high voltage and cannot act this turn!");
             return new DoNothingAction();
         }
 

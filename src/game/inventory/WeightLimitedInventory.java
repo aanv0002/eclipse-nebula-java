@@ -11,6 +11,7 @@ import game.items.ItemStatistics;
  * with them by enforcing an arbitrary capacity limit.
  *
  * @author Adrian Kristanto
+ * @author Shrabonti Majumder
  */
 public class WeightLimitedInventory extends Inventory {
     private int weightLimit;
@@ -22,12 +23,21 @@ public class WeightLimitedInventory extends Inventory {
     }
 
     /**
-     * Perform additional check when adding an item, making sure that by adding the item, the weight limit of the
-     * inventory is not exceeded.
-     *
-     * @param item The Item to add.
-     * @return true if the item is successfully added, false otherwise.
+     * Sets a new weight limit for the inventory.
+     * @param newLimit the new weight limit.
      */
+    public void setWeightLimit(int newLimit) {
+        this.weightLimit = newLimit;
+    }
+
+    /**
+     * Retrieves the current weight limit.
+     * @return current weight limit.
+     */
+    public int getWeightLimit() {
+        return this.weightLimit;
+    }
+
     @Override
     public boolean add(Item item) {
         Display display = new Display();
@@ -48,12 +58,6 @@ public class WeightLimitedInventory extends Inventory {
         }
     }
 
-    /**
-     * Remove the item from the inventory and update the inventory weight accordingly.
-     *
-     * @param item The Item to remove.
-     * @return true if the item is successfully removed, false otherwise.
-     */
     @Override
     public boolean remove(Item item) {
         if (item.hasStatistic(ItemStatistics.WEIGHT)) {

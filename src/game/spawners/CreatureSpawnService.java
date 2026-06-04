@@ -4,6 +4,7 @@ import edu.monash.fit2099.engine.GameEngineException;
 import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.Location;
+import game.actors.ActorCapabilities;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * reactions required by REQ4.
  *
  * @author Shrabonti Majumder
+ * @author Amra Anver
  * @version 1.0
  */
 public class CreatureSpawnService {
@@ -23,6 +25,12 @@ public class CreatureSpawnService {
     private final List<SpawnReaction> spawnReactions;
 
     /**
+     * Handles the loot explosion effect when a Scrap Snatcher spawns
+     */
+    private final LootExplosionService lootExplosionService =
+            new LootExplosionService();
+
+    /**
      * Creates the default creature spawn service with all REQ4 spawn reactions.
      */
     public CreatureSpawnService() {
@@ -31,17 +39,6 @@ public class CreatureSpawnService {
                 new SlimeSpawnReaction(),
                 new ParasiteSpawnReaction()
         );
-    }
-
-    /**
-     * Attempts to spawn a generated creature at the given location.
-     *
-     * @param location the target spawn location
-     * @param spawner the creature spawner
-     * @return true if the creature was spawned successfully
-     */
-    public boolean spawnAt(Location location, CreatureSpawner spawner) {
-        return spawnAt(location, spawner.spawnCreature());
     }
 
     /**
@@ -58,6 +55,9 @@ public class CreatureSpawnService {
 
         try {
             location.addActor(creature);
+            if (creature.hasAbility(ActorCapabilities.SCRAP_SNATCHER)) {
+                lootExplosionService.explode(location);
+            }
             applyReactions(creature, location);
             return true;
         } catch (GameEngineException exception) {

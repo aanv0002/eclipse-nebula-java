@@ -6,26 +6,38 @@ import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.Ground;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actions.BuyAction;
+import game.actions.DepositAction;
 import game.actions.SellAction;
 import game.actors.ActorCapabilities;
 import game.items.*;
+import game.quota.QuotaSystem;
 
 /**
  * A Supercomputer terminal located inside the armoured ship.
  * Workers can interact with it to sell scraps found on the moon or purchase
  * equipment using credits stored in their wallet.
+ * Also manages the company quota cycle, firing workers on deadline
+ * and resetting quota when met.
  *
  * @author Raima
  * @author Shrabonti Majumder
- * @version 2.0
+ * @version 3.0
  */
 public class Supercomputer extends Ground {
 
     /**
-     * Creates a Supercomputer terminal.
+     * The quota system managing company credits and quota cycle.
      */
-    public Supercomputer() {
+    private final QuotaSystem quotaSystem;
+
+    /**
+     * Creates a Supercomputer terminal with a quota system.
+     *
+     * @param quotaSystem the quota system to manage company credits
+     */
+    public Supercomputer(QuotaSystem quotaSystem) {
         super('≡', "Supercomputer");
+        this.quotaSystem = quotaSystem;
     }
 
     /**
@@ -60,14 +72,42 @@ public class Supercomputer extends Ground {
             });
         }
 
+        // ADDED: deposit actions for each depositable item in inventory
+        for (Item item : actor.getInventory().getItems()) {
+            item.asCapability(Depositable.class).ifPresent(depositable ->
+                    actions.add(new DepositAction(item, depositable, quotaSystem))
+            );
+        }
+
         actions.add(new BuyAction(new FirstAidKit()));
         actions.add(new BuyAction(new SterilisationBox()));
         actions.add(new BuyAction(new AccessCardLevel1()));
         actions.add(new BuyAction(new AccessCardLevel2()));
         actions.add(new BuyAction(new AccessCardLevel3()));
+        actions.add(new BuyAction(new PlasmaCutter())); // ADDED: buy PlasmaCutter
 
         return actions;
     }
+
+    /**
+     * Ticks the Supercomputer every turn.
+     * Checks if quota is met or deadline is reached and acts accordingly.
+     * If quota is met, resets and increases quota and time limit.
+     * If deadline is reached, fires adjacent workers.
+     * QuotaSystem.tick() is called from EclipseNebula.gameLoop() not here
+     * to avoid double ticking from multiple Supercomputers.
+     *
+     * @param location the location of the Supercomputer
+     */
+    @Override
+    public void tick(Location location) {
+        if (quotaSystem.isQuotaMet()) {
+            quotaSystem.resetAndIncrease();
+        } else if (quotaSystem.isDeadlineReached()) {
+            quotaSystem.fireAdjacentWorkers(location, location.map());
+        }
+    }
+
     /**
      * Prevents actors from entering the Supercomputer tile.
      * Workers must stand adjacent to interact with the terminal.
@@ -77,5 +117,6 @@ public class Supercomputer extends Ground {
      */
     @Override
     public boolean canActorEnter(Actor actor) {
-        return false; }
+        return false;
+    }
 }

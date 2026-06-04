@@ -5,23 +5,23 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.spawners.FleshyTreeCreatureSpawner;
 
 /**
- * Final growth stage of a fleshy tree.
- * A mature fleshy tree spawns an Undead when a worker is nearby
+ * Next growth stage of a fleshy tree.
+ * A mature fleshy tree spawns a scrap snatcher when a worker is nearby
  * @author Amra Anver
- * @version 1.0
+ * @version 2.0
  */
 public class FleshyMatureTree extends FleshyTree {
 
     /**
-     * Spawner used to spawn Undead when a worker is nearby.
+     * Spawner used to spawn Scrap Snatcher when a worker is nearby.
      */
     private final FleshyTreeCreatureSpawner creatureSpawner = new FleshyTreeCreatureSpawner();
 
     /**
      * Creates a mature fleshy tree.
      */
-    public FleshyMatureTree() {
-        super('Y', "Fleshy Mature Tree");
+    public FleshyMatureTree(FleshyTreeType treeType) {
+        super('Y', "Fleshy Mature Tree", treeType);
     }
 
     /**
@@ -32,37 +32,56 @@ public class FleshyMatureTree extends FleshyTree {
      */
     @Override
     protected boolean performSpecialAction(Location location) {
-        return creatureSpawner.spawnUndeadIfWorkerNearby(location);
+
+        if (treeType == FleshyTreeType.OVERFLOW) {
+            return creatureSpawner.spawnUndeadIfWorkerNearby(location);
+        }
+
+        return creatureSpawner.spawnScrapSnatcherIfWorkerNearby(location);
     }
 
     /**
      * Returns the number of turns before growth is attempted
      * Mature trees are the final stage so they do not grow further
      *
-     * @return the maximum integer value because this tree does not grow further
+     * @return 35 turns
      */
     @Override
     protected int getGrowthInterval() {
-        return Integer.MAX_VALUE;
+
+        if (treeType == FleshyTreeType.OVERFLOW) {
+            return Integer.MAX_VALUE;
+        }
+
+        return 35;
     }
 
     /**
      * Returns the percentage chance of growing.
      *
-     * @return 0 because this tree does not grow further
+     * @return 50 percent
      */
     @Override
     protected int getGrowthChance() {
+        if (treeType == FleshyTreeType.OVERFLOW) {
         return 0;
+    }
+
+    return 50;
     }
 
     /**
      * Returns the next growth stage.
      *
-     * @return null because this is the final stage
+     * @return a fleshy monolith
      */
     @Override
     protected Ground getNextStage() {
-        return null;
+
+        if (treeType == FleshyTreeType.OVERFLOW) {
+            return null;
+        }
+
+        return new FleshyMonolith(treeType);
     }
 }

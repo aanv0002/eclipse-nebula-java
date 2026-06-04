@@ -2,16 +2,18 @@ package game.spawners;
 
 import edu.monash.fit2099.engine.actors.Actor;
 import game.actors.Parasite;
+import game.actors.ScrapSnatcher;
 import game.actors.Slime;
 
 import java.util.Arrays;
 
 /**
  * A creature spawner for vents in 20-overflow.
- * Vents spawn Parasites and Slimes.
+ * Vents spawn Parasites, Slimes and Scrap Snatchers
  *
  * @author Shrabonti Majumder
- * @version 1.0
+ * @author Amra Anver
+ * @version 2.0
  */
 public class VentCreatureSpawner implements CreatureSpawner {
 
@@ -24,7 +26,7 @@ public class VentCreatureSpawner implements CreatureSpawner {
      * Creates a vent spawner.
      */
     public VentCreatureSpawner() {
-        this(new SpawnTable(Arrays.asList(Parasite::new, Slime::new)));
+        this(new SpawnTable(Arrays.asList(Parasite::new, Slime::new, ScrapSnatcher::new)));
     }
 
     /**

@@ -7,7 +7,7 @@ import game.spawners.FleshyTreeCreatureSpawner;
 /**
  * First growth stage of a fleshy tree.
  * @author Amra Anver
- * @version 1.0
+ * @version 2.0
  */
 public class FleshySprout extends FleshyTree {
 
@@ -19,8 +19,8 @@ public class FleshySprout extends FleshyTree {
     /**
      * Creates a fleshy sprout.
      */
-    public FleshySprout() {
-        super('y', "Fleshy Sprout");
+    public FleshySprout(FleshyTreeType treeType) {
+        super('y', "Fleshy Sprout", treeType);
     }
 
     /**
@@ -31,7 +31,12 @@ public class FleshySprout extends FleshyTree {
      */
     @Override
     protected boolean performSpecialAction(Location location) {
-        return creatureSpawner.spawnSlimeIfWorkerNearby(location);
+
+        if (treeType == FleshyTreeType.OVERFLOW) {
+            return creatureSpawner.spawnSlimeIfWorkerNearby(location);
+        }
+
+        return creatureSpawner.spawnUndeadIfWorkerNearby(location);
     }
 
     /**
@@ -57,10 +62,15 @@ public class FleshySprout extends FleshyTree {
     /**
      * Returns the next growth stage.
      *
-     * @return a fleshy sapling
+     * @return a fleshy mature tree
      */
     @Override
     protected Ground getNextStage() {
-        return new FleshySapling();
+
+        if (treeType == FleshyTreeType.OVERFLOW) {
+            return new FleshySapling(treeType);
+        }
+
+        return new FleshyMatureTree(FleshyTreeType.DEPRECATED);
     }
 }

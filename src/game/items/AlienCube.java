@@ -2,6 +2,7 @@ package game.items;
 
 import edu.monash.fit2099.engine.actions.ActionList;
 import edu.monash.fit2099.engine.actors.Actor;
+import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.items.Item;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
@@ -15,7 +16,10 @@ import game.teleport.TeleportDestination;
 import game.teleport.TeleportEffect;
 import game.teleport.Teleportable;
 import game.teleport.TeleportService;
-
+import edu.monash.fit2099.engine.positions.GameMap;
+import game.items.AlienArtifact;
+import game.items.Cuttable;
+import game.statuses.PoisonStatus;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +33,9 @@ import java.util.List;
  * @author Tan Hong Sze
  * @author Raima
  * @author Shrabonti Majumder
- * @version 2.0
+ * @version 3.0
  */
-public class AlienCube extends Item implements Teleportable, Sellable {
+public class AlienCube extends Item implements Teleportable, Sellable,Cuttable {
 
     /**
      * Weight of the alien cube.
@@ -47,6 +51,16 @@ public class AlienCube extends Item implements Teleportable, Sellable {
      * Number of random teleport destinations shown to the worker.
      */
     private static final int RANDOM_DESTINATION_COUNT = 3;
+
+    /**
+     * Poison duration when AlienCube is cut.
+     */
+    public static final int POISON_TURNS = 5;
+
+    /**
+     * Poison damage per turn when AlienCube is cut.
+     */
+    public static final int POISON_DAMAGE = 1;
 
     /**
      * Fixed random destinations generated for the current map.
@@ -198,5 +212,43 @@ public class AlienCube extends Item implements Teleportable, Sellable {
         actions.add(new SellAction(this, this));
         return actions;
 
+    }
+
+    /**
+     * Cuts the AlienCube from the worker's inventory.
+     * Drops an AlienArtifact on the floor at the worker's location.
+     * Removes the AlienCube from the worker's inventory.
+     * Poisons the worker for 5 turns dealing 1 damage per turn.
+     *
+     * @param actor the actor performing the cut
+     * @param map the current game map
+     * @return the result message of the cut including any side effects
+     */
+    @Override
+    public String cut(Actor actor, GameMap map) {
+        // ADDED: drop AlienArtifact at worker's location
+        map.locationOf(actor).addItem(new AlienArtifact());
+
+        // ADDED: remove AlienCube from inventory
+        actor.getInventory().remove(this);
+
+        // ADDED: poison worker
+        actor.addStatus(new PoisonStatus(POISON_TURNS, POISON_DAMAGE));
+
+        String result = actor + " cuts the Alien Cube! "
+                + "An Alien Artifact is dropped on the floor. "
+                + "The worker is poisoned for " + POISON_TURNS + " turns!";
+
+        return result;
+    }
+
+    /**
+     * Returns the menu text fragment for the cut action.
+     *
+     * @return menu text fragment
+     */
+    @Override
+    public String getCutDescription() {
+        return "Alien Cube (in inventory)";
     }
 }

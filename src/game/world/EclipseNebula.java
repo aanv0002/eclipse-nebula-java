@@ -14,6 +14,7 @@ import game.grounds.*;
 import game.grounds.flora.*;
 import game.inventory.WeightLimitedInventory;
 import game.items.*;
+import game.quota.QuotaSystem;
 import game.spawners.HoleCreatureSpawner;
 import game.spawners.VentCreatureSpawner;
 import game.teleport.TeleportDestination;
@@ -43,6 +44,7 @@ public class EclipseNebula extends World {
      * Facility alarm system.
      */
     private final AlarmSystem alarmSystem;
+    private final QuotaSystem quotaSystem; // ADDED
 
     /**
      * Weather controller for REQ3 weather events.
@@ -68,6 +70,7 @@ public class EclipseNebula extends World {
         super(display);
         this.alarmSystem = new AlarmSystem();
         this.weatherController = new WeatherController();
+        this.quotaSystem = new QuotaSystem(); // ADDED
 
         Undead.setAlarmSystem(alarmSystem);
         UnlockDoorAction.setAlarmSystem(alarmSystem);
@@ -86,7 +89,7 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('#', Wall::new);
         groundCreator.registerGround('_', Floor::new);
         groundCreator.registerGround('~', Puddle::new);
-        groundCreator.registerGround('S', Supercomputer::new);
+        groundCreator.registerGround('S', () -> new Supercomputer(quotaSystem)); // EDITED
         groundCreator.registerGround('≈', ToxicWaste::new);
         groundCreator.registerGround('=', AluminiumDoor::new);
         groundCreator.registerGround('N', IronDoor::new);
@@ -99,6 +102,7 @@ public class EclipseNebula extends World {
         groundCreator.registerGround('y', FleshySprout::new);
         groundCreator.registerGround('v', FleshySapling::new);
         groundCreator.registerGround('Y', FleshyMatureTree::new);
+        groundCreator.registerGround('H', FleshyMonolith::new);
         groundCreator.registerGround('w', WarperSapling::new);
         groundCreator.registerGround('W', WarperMatureTree::new);
 
@@ -159,8 +163,8 @@ public class EclipseNebula extends World {
         //placeUniqueShipItems(map99);
         placeFacilityItems99(map99);
         placeFacilityItems20(map20);
-        placeFlora(map99);
-        placeFlora(map20);
+        placeFlora99(map99);
+        placeFLora20(map20);
 
         configureTeleportationTubes(map99, map20);
         configureMagicCircles(map20);
@@ -180,7 +184,7 @@ public class EclipseNebula extends World {
         map.at(6, 2).addItem(new AccessCardLevel1());
         map.at(7, 2).addItem(new FirstAidKit());
         map.at(8, 2).addItem(new SterilisationBox());
-        map.at(7, 3).setGround(new Supercomputer());
+        map.at(5, 3).setGround(new Supercomputer(quotaSystem));
     }
 
     /**
@@ -205,11 +209,12 @@ public class EclipseNebula extends World {
         map.at(45, 3).addItem(new AlienCube());
         map.at(43, 14).addItem(new AlienCube());
         map.at(32, 5).addItem(new AlienCube());
-        map.at(33, 5).setGround(new Supercomputer());
+        map.at(33, 5).setGround(new Supercomputer(quotaSystem)); // EDITED
 
         map.at(7, 3).addItem(new AccessCardLevel2());
         map.at(8, 3).addItem(new AccessCardLevel3());
     }
+
 
     /**
      * Places flora testing grounds.
@@ -219,6 +224,19 @@ public class EclipseNebula extends World {
     private void placeFlora(GameMap map) {
         map.at(9, 11).setGround(new FleshySprout());
         map.at(12, 10).setGround(new WarperSapling());
+
+    private void placeFlora99(GameMap map) {
+
+        map.at(9, 11).setGround(new FleshySprout(FleshyTreeType.DEPRECATED));
+
+        map.at(12,10).setGround(new WarperSapling());
+    }
+
+    private void placeFLora20(GameMap map) {
+        map.at(9,11).setGround(new FleshySprout(FleshyTreeType.OVERFLOW));
+
+        map.at(12,10).setGround(new WarperSapling());
+
     }
 
     /**
@@ -344,6 +362,7 @@ public class EclipseNebula extends World {
     //    this.addPlayer(contractedWorker4, map.at(6, 4));
      //   this.addPlayer(contractedWorker5, map.at(8, 4));
 
+
     }
         /**
          * Creates starting inventory.
@@ -364,6 +383,8 @@ public class EclipseNebula extends World {
         if (!weatherResult99.isEmpty()) {
             new Display().println(weatherResult99);
         }
+
+        quotaSystem.tick();
 
         super.gameLoop();
     }

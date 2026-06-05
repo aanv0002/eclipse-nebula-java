@@ -15,5 +15,7 @@ public enum ActorCapabilities {
     UNDEAD,
     SLIME,
     PARASITE,
+    BLIND,
+    ROOTED,
     SCRAP_SNATCHER
 }

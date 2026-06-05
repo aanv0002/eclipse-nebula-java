@@ -28,7 +28,7 @@ import game.statuses.InfectedStatus;
  * @author Shrabonti Majumder
  * @version 2.0
  */
-public class Cookies extends Item implements Consumable, Sellable, Infectable {
+public class Cookies extends Item implements Consumable, Sellable, Infectable, Moldable {
 
     public static final int WEIGHT = 2;
     public static final int TOTAL_COOKIES = 5;
@@ -141,5 +141,15 @@ public class Cookies extends Item implements Consumable, Sellable, Infectable {
         InfectedStatus infectedStatus = new InfectedStatus(new CookieInfectionEffect(this));
         this.addStatus(infectedStatus);
         return infectedStatus.onInfected(location);
+    }
+
+    @Override
+    public Item asItem() {
+        return this;
+    }
+
+    @Override
+    public Item createMoldedVersion() {
+        return new MoldedCookies();
     }
 }

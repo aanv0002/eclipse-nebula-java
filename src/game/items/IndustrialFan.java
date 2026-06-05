@@ -56,6 +56,7 @@ public class IndustrialFan extends Item implements Sellable, Depositable {
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
         this.makePortable();
         this.spawnService = new CreatureSpawnService();
+        this.enableAbility(ItemCapabilities.DEPOSITABLE);
     }
 
     /**

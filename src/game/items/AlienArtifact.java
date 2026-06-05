@@ -71,6 +71,7 @@ public class AlienArtifact extends Item implements Sellable, Depositable {
         this.addNewStatistic(ItemStatistics.WEIGHT, new BaseStatistic(WEIGHT));
         this.makePortable();
         this.teleportService = new TeleportService();
+        this.enableAbility(ItemCapabilities.DEPOSITABLE);
     }
 
     /**

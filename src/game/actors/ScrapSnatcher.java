@@ -15,6 +15,7 @@ import game.actions.AttackAction;
 import game.behaviours.RandomMoveBehaviour;
 import game.infection.Infectable;
 import game.inventory.BasicInventory;
+import game.items.ItemCapabilities;
 import game.statuses.InfectedStatus;
 import game.infection.ScrapSnatcherInfectionEffect;
 
@@ -158,9 +159,8 @@ public class ScrapSnatcher extends Actor implements Infectable {
     private void snatchResources(Location location) {
 
         for (Item item : new ArrayList<>(location.getItems())) {
-            Depositable depositable = item.getItemAs(Depositable.class);
 
-            if (depositable != null) {
+            if (item.hasAbility(ItemCapabilities.DEPOSITABLE)) {
                 location.removeItem(item);
             }
         }

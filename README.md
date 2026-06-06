@@ -23,140 +23,104 @@
 |   | | | |   ||     |_ |   |                                                            
 |___| |_|  |__||_______||___|                                                                                                                                                                                                                         
 ```
----
-# REQ5 details:
+# REQ5: Lunar Evolution System (API Integration)
 
-The **Anomalous Mannequin** is a deterministic stateful creature with four distinct states:
+## Overview
+The Lunar Evolution System connects the Eclipse Nebula facility to the 
+real-world moon phase using the FreeAstroAPI Moon Phase endpoint. Every 
+50 turns the game fetches the current moon phase and applies a corresponding 
+lunar influence to the active game map, physically altering creature behaviour 
+and terrain.
 
-- IdleState
-- ActiveState
-- StalkingState
-- BerserkState
- 
-Each transition depends on nearby workers, nearby items, and surrounding environmental conditions.
+## API Used
+FreeAstroAPI Moon Phase  
+Endpoint: `https://api.freeastroapi.com/api/v1/moon/phase`
 
-Every state also contains:
+## How to Get the API Key
+1. Go to https://www.freeastroapi.com
+2. Sign up for a free account
+3. Go to the dashboard
+4. Generate a new API key
+5. Copy the full key
 
-- A unique regular behaviour
-- Deterministic transition conditions
-- An immediate transition effect triggered exactly when entering the state
+## How to Set Up the API Key
+1. Create a file named `.env` in the root of the project (same level as `pom.xml`)
+2. Add the following line to the `.env` file: MOON_API_KEY=your_api_key_here
+3. Replace `your_api_key_here` with your actual API key
+4. Save the file
+5. Do NOT commit this file to GitLab - it is already listed in `.gitignore`
 
----
-# State Overview
+## How to Run
+1. Complete the API key setup above
+2. Run the game normally through `Application.java`
+3. Every 50 turns the lunar system will automatically fetch the moon phase
+4. The console will print the current moon phase, illumination and active influence
 
+## Dynamic API Request
+The API request is not static. The following parameters change based on game state:
 
-## IdleState
+| Parameter | Source | Purpose |
+|-----------|--------|---------|
+| `date` | Current real-world date | Changes moon phase over time |
+| `lat` | Active map identifier | 99-Deprecated uses Melbourne (-37.8136) |
+| `lon` | Active map identifier | 20-Overflow uses Kuala Lumpur (101.6869) |
 
-### Regular Behaviour
-- The mannequin uses IdleScanBehaviour to stay still while scanning nearby workers and items.
+Example request for 99-Deprecated:
+GET https://api.freeastroapi.com/api/v1/moon/phase
+?date=2026-06-06
+&lat=-37.8136
+&lon=144.9631
+&include_eclipse=true
+x-api-key: your_api_key_here
 
-### Deterministic State Transitions
-- **IdleState → BerserkState**
-    - Triggered when **two or more adjacent workers** are detected.
+## Expected JSON Response
+```json
+{
+  "phase": {
+    "name": "Full Moon",
+    "illumination": 0.98,
+    "age_days": 14.5
+  },
+  "eclipse": {
+    "is_blood_moon": false
+  }
+}
+```
 
-- **IdleState → StalkingState**
-    - Triggered when **exactly one worker** is detected within **3 tiles radius**.
+## Phase Mapping
+| API Response | Game Effect |
+|-------------|-------------|
+| `is_blood_moon: true` | BloodMoonInfluence — isolated creatures mutate into MutatedCreatures |
+| `phase.name: Full Moon` | FullMoonInfluence — clustered Slimes split into additional Slimes |
+| `phase.name: New Moon` | NewMoonInfluence — enclosed creatures become dormant ambushers |
+| All other phases | DefaultLunarInfluence — no major effect |
 
-- **IdleState → ActiveState**
-    - Triggered when:
-        - no workers are detected within 3 tiles radius AND
-        - at least one item exists within 3 tiles radius.
+## Architecture
+### Abstractions
+- `LunarInfluence` — interface for applying lunar phase effects to the map
+- `EvolutionBehaviour` — interface for complex evolution effects on creatures
 
-- **IdleState → IdleState**
-    - Triggered when none of the above conditions are satisfied.
+### Concrete Classes
+- `FullMoonInfluence` — triggers ColonyEvolution on clustered Slimes
+- `NewMoonInfluence` — triggers AmbushEvolution on enclosed creatures
+- `BloodMoonInfluence` — triggers MutationEvolution on isolated creatures
+- `DefaultLunarInfluence` — no effect for non-major phases
+- `ColonyEvolution` — spawns additional Slimes near clusters
+- `AmbushEvolution` — applies DormantStatus making creatures dormant
+- `MutationEvolution` — replaces creatures with MutatedCreature
 
-### Immediate Transition Effect
-#### CorruptSurroundingsEffect
-- All adjacent enterable tiles radius are transformed into **ToxicWaste**.
-- This effect triggers immediately when entering IdleState.
+### Higher-Level Classes
+- `MoonPhaseController` — orchestrates API calls and influence selection
+- `MoonPhaseApiService` — handles API communication and JSON parsing
 
----
+## SOLID Principles Applied
+- **SRP** — each class has one responsibility
+- **OCP** — new influences and evolutions implement interfaces without modifying existing classes
+- **DIP** — MoonPhaseController depends on LunarInfluence abstraction not concrete classes
+- **DRY** — one MoonPhaseApiService handles all API calls
 
-## ActiveState
-
-### Regular Behaviour
-- The mannequin uses CollectGroundItemsBehaviour to collect nearby  by moving towards nearest ground item and picks up items on its current tile.
-
-### Deterministic State Transitions
-- **ActiveState → BerserkState**
-    - Triggered when at least one worker becomes adjacent.
-
-- **ActiveState → StalkingState**
-    - Triggered when:
-        - a worker exists within 3 tiles radius BUT
-        - the worker is not adjacent.
-
-- **ActiveState → IdleState**
-    - Triggered when no items exist within 3 tiles radius.
-
-- **ActiveState → ActiveState**
-    - Triggered when none of the above conditions are satisfied.
-
-### Immediate Transition Effect
-#### ScatterNearbyItemsEffect
-- All nearby ground items within 3 tiles radius are redistributed into surrounding empty tiles.
-- This effect triggers immediately when entering ActiveState.
-
----
-
-## StalkingState
-
-### Regular Behaviour
-- The mannequin uses FollowNearestWorkerBehaviour to follow the nearest reachable worker.
-
-### Deterministic State Transitions
-- **StalkingState → BerserkState**
-    - Triggered when at least one worker becomes adjacent.
-
-- **StalkingState → ActiveState**
-    - Triggered when:
-        - no worker exists within 3 tiles radius AND
-        - at least one item exists within 3 tiles radius.
-
-- **StalkingState → IdleState**
-    - Triggered when:
-        - no worker exists within 3 tiles radius AND
-        - no nearby items exist.
-
-- **StalkingState → StalkingState**
-    - Triggered when none of the above conditions are satisfied.
-
-### Immediate Transition Effect
-#### PoisonSurroundingsEffect
-- All actors within 3 tiles radius are poisoned for 3 turns.
-- This effect triggers immediately when entering StalkingState.
-
----
-
-## BerserkState
-
-### Regular Behaviour
-- The mannequin uses BerserkAttackAndDropBehaviour to attacks adjacent workers, successful attacks force the target to immediately drop all carried inventory items onto the ground.
-
-### Deterministic State Transitions
-- **BerserkState → ActiveState**
-    - Triggered when:
-        - no workers are within 3 tiles radius AND
-        - at least one item exists within 3 tiles radius.
-
-- **BerserkState → IdleState**
-    - Triggered when:
-        - no workers are within 3 tiles radius AND
-        - no items within 3 tiles radius exist.
-
-- **BerserkState → StalkingState**
-    - Triggered when:
-        - a worker exists within 3 tiles radius BUT
-        - the worker is not adjacent.
-
-- **BerserkState → BerserkState**
-    - Triggered when at least one worker remains adjacent.
-
-### Immediate Transition Effect
-#### IgniteSurroundingsEffect
-- All adjacent enterable tiles radius are ignited with Fire.
-- This effect triggers immediately when entering BerserkState.
-
+Contribution log link:
+https://docs.google.com/spreadsheets/d/1wdOijFaBssJSIYkIbtEd6_YEAU6Sa9LpDJsAg3OyCls/edit?usp=sharing
 ---
 ### Contribution log link: 
 https://docs.google.com/spreadsheets/d/1wdOijFaBssJSIYkIbtEd6_YEAU6Sa9LpDJsAg3OyCls/edit?usp=sharing

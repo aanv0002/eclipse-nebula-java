@@ -83,7 +83,7 @@ class REQ1Test {
         quotaSystem = new QuotaSystem();
     }
 
-    // ==================== WALLET TESTS ====================
+    // WALLET TESTS
 
     /**
      * Normal case: wallet adds credits correctly.
@@ -153,7 +153,7 @@ class REQ1Test {
         assertEquals(100, wallet.getCredits());
     }
 
-    // ==================== QUOTA SYSTEM TESTS ====================
+    // QUOTA SYSTEM TESTS
 
     /**
      * Normal case: QuotaSystem starts with correct base values.
@@ -257,7 +257,7 @@ class REQ1Test {
         assertEquals(198, quotaSystem.getRemainingTurns());
     }
 
-    // ==================== ALUMINIUM SCRAP TESTS ====================
+    // ALUMINIUM SCRAP TESTS
 
     /**
      * Normal case: AluminiumScrap deposit adds 50 company credits.
@@ -315,7 +315,7 @@ class REQ1Test {
         assertTrue(quotaSystem.isQuotaMet());
     }
 
-    // ==================== INDUSTRIAL FAN TESTS ====================
+    // INDUSTRIAL FAN TESTS
 
     /**
      * Normal case: IndustrialFan sell adds 150 worker credits.
@@ -392,7 +392,7 @@ class REQ1Test {
         assertFalse(worker.getInventory().getItems().contains(fan));
     }
 
-    // ==================== ALIEN ARTIFACT TESTS ====================
+    // ALIEN ARTIFACT TESTS
 
     /**
      * Normal case: AlienArtifact sell adds 200 worker credits.
@@ -457,7 +457,7 @@ class REQ1Test {
         assertTrue(result.contains("100"));
     }
 
-    // ==================== PLASMA CUTTER TESTS ====================
+    //  PLASMA CUTTER TESTS
 
     /**
      * Normal case: PlasmaCutter buy deducts 50 worker credits.
@@ -527,7 +527,7 @@ class REQ1Test {
         assertFalse(worker.getInventory().getItems().contains(cutter));
     }
 
-    // ==================== ALIEN CUBE CUT TESTS ====================
+    //  ALIEN CUBE CUT TESTS
 
     /**
      * Normal case: AlienCube cut drops AlienArtifact at worker location.
@@ -597,7 +597,7 @@ class REQ1Test {
         assertTrue(cube.getCutDescription().contains("Alien Cube"));
     }
 
-    // ==================== ALUMINIUM DOOR CUT TESTS ====================
+    // ALUMINIUM DOOR CUT TESTS
 
     /**
      * Normal case: AluminiumDoor cut drops AluminiumScrap.
@@ -643,7 +643,7 @@ class REQ1Test {
         assertEquals("Aluminium Door", door.getCutDescription());
     }
 
-    // ==================== VENT CUT TESTS ====================
+    // VENT CUT TESTS
 
     /**
      * Normal case: Vent cut drops IndustrialFan.

@@ -139,7 +139,7 @@ public class QuotaSystem {
      */
     public void resetAndIncrease() {
         quotaTarget = (int) Math.ceil(quotaTarget * (1 + QUOTA_INCREASE));
-        timeLimit = (int) Math.ceil(timeLimit * (1 + TIME_LIMIT_INCREASE));
+        timeLimit = (int) Math.round(timeLimit * (1 + TIME_LIMIT_INCREASE));
         companyCredits = 0;
         turnCount = 0;
         firedThisCycle = false; // ADDED: reset for next cycle

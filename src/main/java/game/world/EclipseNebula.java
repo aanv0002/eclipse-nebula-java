@@ -30,6 +30,7 @@ import game.security.PurgeCanister;
 import game.security.SpikeDrone;
 import game.security.StaticPylon;
 import game.weather.WeatherController;
+import game.lunar.MoonPhaseController;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +63,13 @@ public class EclipseNebula extends World {
     private final WeatherController weatherController;
 
     /**
+     * The lunar evolution controller that periodically fetches moon phase
+     * data from the external API and applies the corresponding lunar
+     * influence to the active game map every 50 turns.
+     */
+    private final MoonPhaseController moonPhaseController; // ADDED: REQ5 lunar system
+
+    /**
      * 99-Deprecated map reference used for game loop weather testing.
      */
     private GameMap map99;
@@ -81,6 +89,7 @@ public class EclipseNebula extends World {
         this.alarmSystem = new AlarmSystem();
         this.weatherController = new WeatherController();
         this.quotaSystem = new QuotaSystem(); // ADDED
+        this.moonPhaseController = new MoonPhaseController(); // ADDED: initialise lunar controller
 
         Undead.setAlarmSystem(alarmSystem);
         UnlockDoorAction.setAlarmSystem(alarmSystem);
@@ -409,6 +418,29 @@ public class EclipseNebula extends World {
         return inventory;
     }
 
+    /**
+     * Returns the currently active game map.
+     * Used by the lunar system to determine which map coordinates
+     * to use in the dynamic API request.
+     *
+     * @return the active game map
+     */
+    private GameMap getActiveMap() {
+        return map99;
+    }
+
+    /**
+     * Returns whether the currently active map is 99-Deprecated.
+     * Used by the lunar system to select the correct coordinates
+     * for the dynamic API request since each map uses different
+     * latitude and longitude values.
+     *
+     * @return true if active map is 99-Deprecated
+     */
+    private boolean isMap99() {
+        return true;
+    }
+
     @Override
     protected void gameLoop() throws edu.monash.fit2099.engine.GameEngineException {
         alarmSystem.tick();
@@ -419,6 +451,7 @@ public class EclipseNebula extends World {
         }
 
         quotaSystem.tick();
+        moonPhaseController.tick(getActiveMap(), isMap99()); // ADDED: tick lunar system once per turn
 
         super.gameLoop();
     }

@@ -119,8 +119,6 @@ x-api-key: your_api_key_here
 - **DIP** — MoonPhaseController depends on LunarInfluence abstraction not concrete classes
 - **DRY** — one MoonPhaseApiService handles all API calls
 
-Contribution log link:
-https://docs.google.com/spreadsheets/d/1wdOijFaBssJSIYkIbtEd6_YEAU6Sa9LpDJsAg3OyCls/edit?usp=sharing
 ---
 ### Contribution log link: 
 https://docs.google.com/spreadsheets/d/1wdOijFaBssJSIYkIbtEd6_YEAU6Sa9LpDJsAg3OyCls/edit?usp=sharing

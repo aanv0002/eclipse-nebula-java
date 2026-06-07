@@ -38,4 +38,6 @@ public class LaserBarrier extends Item implements GridCountermeasure {
         }
         return actions;
     }
+    @Override
+    public String getCountermeasureType() { return "Barrier"; }
 }

@@ -12,7 +12,7 @@ import game.items.ItemStatistics;
  * Canister allowing environmental reclamation of tiles.
  *
  * @author Shrabonti Majumder
- * @version 1.0
+ * @version 1.1
  */
 public class PurgeCanister extends Item implements GridCountermeasure {
 
@@ -28,4 +28,7 @@ public class PurgeCanister extends Item implements GridCountermeasure {
         actions.add(new PurgeTerrainAction(this));
         return actions;
     }
+
+    @Override
+    public String getCountermeasureType() { return "Purge"; }
 }

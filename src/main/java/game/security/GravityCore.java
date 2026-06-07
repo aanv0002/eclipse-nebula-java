@@ -15,7 +15,7 @@ import java.util.List;
  * Imploding industrial scrap causing 3-tile dragging anomaly.
  *
  * @author Shrabonti Majumder
- * @version 1.0
+ * @version 1.1
  */
 public class GravityCore extends Item implements SecurityHazard {
 
@@ -47,18 +47,21 @@ public class GravityCore extends Item implements SecurityHazard {
             for (Location targetLoc : location.getNearbyLocations(3)) {
                 if (targetLoc == location) continue;
 
-                Location pullDest = calculateDragPath(targetLoc, location);
-                if (pullDest != null) {
-                    if (targetLoc.containsAnActor() && !pullDest.containsAnActor()) {
-                        Actor dragged = targetLoc.getActor();
+                if (targetLoc.containsAnActor()) {
+                    Actor dragged = targetLoc.getActor();
+                    Location pullDest = calculateDragPath(targetLoc, location, dragged);
+                    if (pullDest != null && !pullDest.containsAnActor()) {
                         map.moveActor(dragged, pullDest);
                         new Display().println(dragged + " is dragged forcefully by the gravity anomaly!");
                     }
-
-                    List<Item> itemsToMove = new ArrayList<>(targetLoc.getItems());
-                    for (Item item : itemsToMove) {
-                        targetLoc.removeItem(item);
-                        pullDest.addItem(item);
+                } else {
+                    Location pullDest = calculateDragPath(targetLoc, location, null);
+                    if (pullDest != null) {
+                        List<Item> itemsToMove = new ArrayList<>(targetLoc.getItems());
+                        for (Item item : itemsToMove) {
+                            targetLoc.removeItem(item);
+                            pullDest.addItem(item);
+                        }
                     }
                 }
             }
@@ -67,14 +70,14 @@ public class GravityCore extends Item implements SecurityHazard {
         }
     }
 
-    private Location calculateDragPath(Location current, Location epicentre) {
+    private Location calculateDragPath(Location current, Location epicentre, Actor actor) {
         int bestDist = Math.abs(current.x() - epicentre.x()) + Math.abs(current.y() - epicentre.y());
         Location bestChoice = null;
 
         for (Exit exit : current.getExits()) {
             Location adj = exit.getDestination();
             int dist = Math.abs(adj.x() - epicentre.x()) + Math.abs(adj.y() - epicentre.y());
-            if (dist < bestDist && adj.canActorEnter(null)) {
+            if (dist < bestDist && (actor == null || adj.canActorEnter(actor))) {
                 bestDist = dist;
                 bestChoice = adj;
             }

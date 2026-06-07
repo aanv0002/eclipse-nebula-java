@@ -54,4 +54,6 @@ public class DefuseKit extends Item implements GridCountermeasure {
         }
         return actions;
     }
+    @Override
+    public String getCountermeasureType() { return "Defuse"; }
 }

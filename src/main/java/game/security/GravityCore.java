@@ -88,6 +88,7 @@ public class GravityCore extends Item implements SecurityHazard {
     @Override
     public void disarm(Location location) {
         this.active = false;
+        location.removeItem(this);
         new Display().println("The Gravity Core has been safely neutralized.");
     }
 

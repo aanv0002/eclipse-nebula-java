@@ -6,7 +6,7 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.grounds.ChargedFloor;
 import game.statuses.StunnedStatus;
 import edu.monash.fit2099.engine.displays.Display;
-
+import game.grounds.Floor;
 /**
  * High-voltage structural pillar permanently converting path terrain.
  *
@@ -58,6 +58,7 @@ public class StaticPylon extends Ground implements SecurityHazard {
     @Override
     public void disarm(Location location) {
         this.active = false;
+        location.setGround(new Floor());
         new Display().println("The Static Pylon's internal breaker was tripped. Disarmed safely.");
     }
 

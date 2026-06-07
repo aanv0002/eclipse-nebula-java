@@ -9,7 +9,6 @@ import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import game.behaviours.InfectNearbyTargetBehaviour;
-import game.behaviours.RandomMoveBehaviour;
 import game.inventory.BasicInventory;
 
 import java.util.Map;
@@ -21,8 +20,7 @@ import java.util.TreeMap;
  * Otherwise, it wanders randomly.
  *
  * @author Shrabonti Majumder
- * @author Amra Anver
- * @version 2.0
+ * @version 1.0
  */
 public class Parasite extends Actor {
 
@@ -44,7 +42,6 @@ public class Parasite extends Actor {
         this.enableAbility(ActorCapabilities.CREATURE);
         this.enableAbility(ActorCapabilities.PARASITE);
         behaviours.put(1, new InfectNearbyTargetBehaviour());
-        behaviours.put(999, new RandomMoveBehaviour());
     }
 
     /**

@@ -26,12 +26,14 @@ public class CorrodedStatus implements Status {
     @Override
     public void tickStatus(GameEntity currEntity, Location location) {
         Actor actor = currEntity.asCapability(Actor.class).orElse(null);
+        WeightLimitedInventory wli = null;
         if (actor != null && actor.getInventory() instanceof WeightLimitedInventory) {
-            WeightLimitedInventory wli = (WeightLimitedInventory) actor.getInventory();
+            wli = (WeightLimitedInventory) actor.getInventory();
+        }
+        if (actor != null && wli != null) {
 
             if (!applied) {
-                originalLimit = wli.getWeightLimit();
-                wli.setWeightLimit(30);
+                originalLimit = wli.applyCorrosion(30);
                 applied = true;
                 new Display().println(actor + "'s suit is heavily corroded! Max weight limited to 30 units.");
             }
@@ -39,7 +41,7 @@ public class CorrodedStatus implements Status {
             remainingTurns--;
 
             if (remainingTurns <= 0) {
-                wli.setWeightLimit(originalLimit);
+                wli.removeCorrosion(originalLimit);
                 new Display().println(actor + "'s suit corrosion has faded. Weight limit safely restored.");
             }
         }

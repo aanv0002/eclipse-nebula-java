@@ -6,8 +6,6 @@ import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actors.ActorCapabilities;
-import game.actors.Undead;
-import game.actors.Slime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +59,7 @@ public class NewMoonInfluence implements LunarInfluence {
                 if (!location.containsAnActor()) continue;
 
                 Actor actor = location.getActor();
-                if (!(actor instanceof Undead) && !(actor instanceof Slime)) continue;
+                if (!actor.hasAbility(ActorCapabilities.CREATURE)) continue;
 
                 int adjacentWalls = 0;
                 for (Exit exit : location.getExits()) {

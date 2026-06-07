@@ -5,7 +5,6 @@ import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import game.actors.ActorCapabilities;
-import game.actors.Slime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,12 +56,12 @@ public class FullMoonInfluence implements LunarInfluence {
                 if (!location.containsAnActor()) continue;
 
                 Actor actor = location.getActor();
-                if (!(actor instanceof Slime)) continue;
+                if (!actor.hasAbility(ActorCapabilities.SLIME)) continue;
 
                 int nearbySlimes = 0;
                 for (edu.monash.fit2099.engine.positions.Exit exit : location.getExits()) {
                     Actor adjacent = exit.getDestination().getActor();
-                    if (adjacent instanceof Slime) {
+                    if (adjacent != null && adjacent.hasAbility(ActorCapabilities.SLIME)) {
                         nearbySlimes++;
                     }
                 }

@@ -5,8 +5,7 @@ import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.Exit;
 import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
-import game.actors.Undead;
-import game.actors.Slime;
+import game.actors.ActorCapabilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +61,12 @@ public class BloodMoonInfluence implements LunarInfluence {
                 if (!location.containsAnActor()) continue;
 
                 Actor actor = location.getActor();
-                if (!(actor instanceof Undead) && !(actor instanceof Slime)) continue;
+                if (!actor.hasAbility(ActorCapabilities.CREATURE)) continue;
 
                 int adjacentCreatures = 0;
                 for (Exit exit : location.getExits()) {
                     Actor adjacent = exit.getDestination().getActor();
-                    if (adjacent != null && !(adjacent.hasAbility(
-                            game.actors.ActorCapabilities.WORKER))) {
+                    if (adjacent != null && !adjacent.hasAbility(ActorCapabilities.WORKER)) {
                         adjacentCreatures++;
                     }
                 }

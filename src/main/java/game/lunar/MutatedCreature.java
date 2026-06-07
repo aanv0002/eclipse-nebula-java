@@ -77,7 +77,7 @@ public class MutatedCreature extends Actor {
         Location here = map.locationOf(this);
 
         // ADDED: spread corruption ground on current tile
-        if (!(here.getGround() instanceof CorruptionGround)) {
+        if (here.getGroundAs(CorruptionGround.class) == null) {
             here.setGround(new CorruptionGround());
             new Display().println(this + " corrupts the ground at " + here + "!");
         }

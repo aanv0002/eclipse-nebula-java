@@ -4,8 +4,14 @@ import edu.monash.fit2099.engine.GameEntity;
 import edu.monash.fit2099.engine.capabilities.Status;
 import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.Location;
-import game.actors.ContractedWorker;
+import game.actors.WeightPenaltyTarget;
 
+/**
+ * A status that severely restricts carrying weight by dissolving suit plating.
+ *
+ * @author Shrabonti Majumder
+ * @version 2.0
+ */
 public class CorrodedStatus implements Status {
 
     private int remainingTurns;
@@ -19,20 +25,20 @@ public class CorrodedStatus implements Status {
 
     @Override
     public void tickStatus(GameEntity currEntity, Location location) {
-        ContractedWorker worker = currEntity.asCapability(ContractedWorker.class).orElse(null);
-        if (worker == null) return;
+        WeightPenaltyTarget target = currEntity.asCapability(WeightPenaltyTarget.class).orElse(null);
+        if (target == null) return;
 
         if (!applied) {
-            originalLimit = worker.applyWeightPenalty(30);
+            originalLimit = target.applyWeightPenalty(30);
             applied = true;
-            new Display().println(worker + "'s suit is heavily corroded! Max weight limited to 30 units.");
+            new Display().println(target + "'s suit is heavily corroded! Max weight limited to 30 units.");
         }
 
         remainingTurns--;
 
         if (remainingTurns <= 0) {
-            worker.removeWeightPenalty(originalLimit);
-            new Display().println(worker + "'s suit corrosion has faded. Weight limit safely restored.");
+            target.removeWeightPenalty(originalLimit);
+            new Display().println(target + "'s suit corrosion has faded. Weight limit safely restored.");
         }
     }
 

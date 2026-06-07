@@ -30,7 +30,7 @@ import game.statuses.StunnedStatus;
  * @author Shrabonti Majumder
  * @version 3.0
  */
-public class ContractedWorker extends Actor implements WalletCarrier, Infectable {
+public class ContractedWorker extends Actor implements WalletCarrier, Infectable, WeightPenaltyTarget {
 
     private final Wallet wallet;
 

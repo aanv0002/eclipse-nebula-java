@@ -12,6 +12,7 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.actions.ConsumeAction;
 import game.infection.Infectable;
 import game.infection.WorkerInfectionEffect;
+import game.inventory.WeightLimitedInventory;
 import game.items.Consumable;
 import game.items.Wallet;
 import game.items.WalletCarrier;
@@ -150,4 +151,12 @@ public class ContractedWorker extends Actor implements WalletCarrier, Infectable
 
         return validMoves.get(new java.util.Random().nextInt(validMoves.size()));
     }
+    public int applyWeightPenalty(int reduced) {
+        return ((WeightLimitedInventory) getInventory()).applyCorrosion(reduced);
+    }
+
+    public void removeWeightPenalty(int original) {
+        ((WeightLimitedInventory) getInventory()).removeCorrosion(original);
+    }
+
 }

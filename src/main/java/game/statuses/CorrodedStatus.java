@@ -1,16 +1,16 @@
 package game.statuses;
 
 import edu.monash.fit2099.engine.GameEntity;
-import edu.monash.fit2099.engine.actors.Actor;
 import edu.monash.fit2099.engine.capabilities.Status;
 import edu.monash.fit2099.engine.displays.Display;
 import edu.monash.fit2099.engine.positions.Location;
-import game.inventory.WeightLimitedInventory;
+import game.actors.WeightPenaltyTarget;
 
 /**
  * A status that severely restricts carrying weight by dissolving suit plating.
- * * @author Shrabonti Majumder
- * @version 1.0
+ *
+ * @author Shrabonti Majumder
+ * @version 2.0
  */
 public class CorrodedStatus implements Status {
 
@@ -25,23 +25,20 @@ public class CorrodedStatus implements Status {
 
     @Override
     public void tickStatus(GameEntity currEntity, Location location) {
-        Actor actor = currEntity.asCapability(Actor.class).orElse(null);
-        if (actor != null && actor.getInventory() instanceof WeightLimitedInventory) {
-            WeightLimitedInventory wli = (WeightLimitedInventory) actor.getInventory();
+        WeightPenaltyTarget target = currEntity.asCapability(WeightPenaltyTarget.class).orElse(null);
+        if (target == null) return;
 
-            if (!applied) {
-                originalLimit = wli.getWeightLimit();
-                wli.setWeightLimit(30);
-                applied = true;
-                new Display().println(actor + "'s suit is heavily corroded! Max weight limited to 30 units.");
-            }
+        if (!applied) {
+            originalLimit = target.applyWeightPenalty(30);
+            applied = true;
+            new Display().println(target + "'s suit is heavily corroded! Max weight limited to 30 units.");
+        }
 
-            remainingTurns--;
+        remainingTurns--;
 
-            if (remainingTurns <= 0) {
-                wli.setWeightLimit(originalLimit);
-                new Display().println(actor + "'s suit corrosion has faded. Weight limit safely restored.");
-            }
+        if (remainingTurns <= 0) {
+            target.removeWeightPenalty(originalLimit);
+            new Display().println(target + "'s suit corrosion has faded. Weight limit safely restored.");
         }
     }
 

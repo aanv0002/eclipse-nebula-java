@@ -8,7 +8,6 @@ import edu.monash.fit2099.engine.positions.GameMap;
 import edu.monash.fit2099.engine.positions.Location;
 import edu.monash.fit2099.engine.statistics.BaseStatistic;
 import game.actions.DeployBarrierAction;
-import game.grounds.Floor;
 import game.items.ItemStatistics;
 
 /**
@@ -32,7 +31,7 @@ public class LaserBarrier extends Item implements GridCountermeasure {
 
         for (Exit exit : here.getExits()) {
             Location adj = exit.getDestination();
-            if (adj.getGround() instanceof Floor && !adj.containsAnActor()) {
+            if (adj.canActorEnter(owner) && !adj.containsAnActor()) {
                 actions.add(new DeployBarrierAction(this, adj, exit.getName()));
             }
         }

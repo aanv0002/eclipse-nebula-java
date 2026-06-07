@@ -225,6 +225,7 @@ public class EclipseNebula extends World {
         map.at(13, 3).addItem(new Lantern());
         map.at(14, 3).addItem(new FloppyDisk());
         map.at(15, 3).addItem(new CRTMonitor());
+        map.at(12, 4).setGround(new Supercomputer(quotaSystem));
     }
 
     /**
@@ -236,7 +237,7 @@ public class EclipseNebula extends World {
         map.at(45, 3).addItem(new AlienCube());
         map.at(43, 14).addItem(new AlienCube());
         map.at(32, 5).addItem(new AlienCube());
-        map.at(33, 5).setGround(new Supercomputer(quotaSystem)); // EDITED
+        map.at(31, 5).setGround(new Supercomputer(quotaSystem)); // EDITED
 
         map.at(7, 3).addItem(new AccessCardLevel2());
         map.at(8, 3).addItem(new AccessCardLevel3());
@@ -394,16 +395,16 @@ public class EclipseNebula extends World {
      */
     private void addWorkers(GameMap map) throws Exception {
         ContractedWorker contractedWorker1 = new ContractedWorker("#1 Bob", 'ඞ', 10, createStartingInventory());
-     //   ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
-     //   ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
-     //   ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
-     //   ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
+        ContractedWorker contractedWorker2 = new ContractedWorker("#2 Tom", 'ඞ', 10, createStartingInventory());
+        ContractedWorker contractedWorker3 = new ContractedWorker("#3 Sarah", 'ඞ', 10, createStartingInventory());
+        ContractedWorker contractedWorker4 = new ContractedWorker("#4 Julie", 'ඞ', 10, createStartingInventory());
+        ContractedWorker contractedWorker5 = new ContractedWorker("#5 Rick", 'ඞ', 10, createStartingInventory());
 
         this.addPlayer(contractedWorker1, map.at(10, 3));
-     //   this.addPlayer(contractedWorker2, map.at(13, 2));
-     //   this.addPlayer(contractedWorker3, map.at(8, 2));
-    //    this.addPlayer(contractedWorker4, map.at(6, 4));
-     //   this.addPlayer(contractedWorker5, map.at(8, 4));
+        this.addPlayer(contractedWorker2, map.at(13, 2));
+        this.addPlayer(contractedWorker3, map.at(8, 2));
+        this.addPlayer(contractedWorker4, map.at(6, 4));
+        this.addPlayer(contractedWorker5, map.at(8, 4));
 
 
     }

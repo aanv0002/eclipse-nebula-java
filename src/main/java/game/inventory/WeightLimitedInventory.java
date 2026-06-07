@@ -23,14 +23,6 @@ public class WeightLimitedInventory extends Inventory {
     }
 
     /**
-     * Sets a new weight limit for the inventory.
-     * @param newLimit the new weight limit.
-     */
-    public void setWeightLimit(int newLimit) {
-        this.weightLimit = newLimit;
-    }
-
-    /**
      * Retrieves the current weight limit.
      * @return current weight limit.
      */
@@ -71,5 +63,25 @@ public class WeightLimitedInventory extends Inventory {
             String msg = String.format("%s does not have a weight statistic", item);
             throw new IllegalArgumentException(msg);
         }
+    }
+    /**
+     * Temporarily reduces the weight limit due to corrosion.
+     *
+     * @param reducedLimit the new reduced weight limit
+     * @return the original weight limit before reduction
+     */
+    public int applyCorrosion(int reducedLimit) {
+        int original = this.weightLimit;
+        this.weightLimit = reducedLimit;
+        return original;
+    }
+
+    /**
+     * Restores the weight limit after corrosion expires.
+     *
+     * @param restoredLimit the original weight limit to restore
+     */
+    public void removeCorrosion(int restoredLimit) {
+        this.weightLimit = restoredLimit;
     }
 }

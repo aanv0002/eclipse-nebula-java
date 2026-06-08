@@ -4,7 +4,7 @@ import edu.monash.fit2099.engine.positions.Ground;
 import edu.monash.fit2099.engine.positions.Location;
 
 /**
- * Final growth stage of a fleshy tree.
+ * Final growth stage of a fleshy tree on the 99-Deprecated Moon
  * @author Amra Anver
  * @version 1.0
  */

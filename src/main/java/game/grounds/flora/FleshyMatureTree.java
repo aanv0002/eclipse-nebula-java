@@ -5,7 +5,8 @@ import edu.monash.fit2099.engine.positions.Location;
 import game.spawners.FleshyTreeCreatureSpawner;
 
 /**
- * Next growth stage of a fleshy tree.
+ * Middle growth stage of a fleshy tree on the 99-Deprecated Moon
+ * Final growth stage of a fleshy tree on the 20-Overflow Moon
  * A mature fleshy tree spawns a scrap snatcher when a worker is nearby
  * @author Amra Anver
  * @version 2.0

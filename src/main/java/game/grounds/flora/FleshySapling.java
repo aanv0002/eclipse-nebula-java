@@ -4,7 +4,7 @@ import edu.monash.fit2099.engine.positions.Ground;
 import edu.monash.fit2099.engine.positions.Location;
 
 /**
- * Middle growth stage of a fleshy tree
+ * Middle growth stage of a fleshy tree on the 20-Overflow Moon
  * @author Amra Anver
  * @version 1.0
  */

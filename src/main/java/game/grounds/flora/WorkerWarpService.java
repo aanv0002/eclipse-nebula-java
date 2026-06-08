@@ -12,6 +12,12 @@ import java.util.List;
 import java.util.Random;
 
 /**
+ * Provides shared worker warping behaviour for flora that possess teleportation abilities.
+ * This service searches the locations adjacent to a tree for workers and, when one is found,
+ * teleports that worker to a randomly selected valid location elsewhere on the map.
+ * The service is intended to centralise warping logic that would otherwise
+ * be duplicated across multiple fleshy tree or warper tree implementations.
+ * If no adjacent worker is found, or no valid destination exists, no warp occurs.
  *
  * @author Amra Anver
  * @version 1.0

@@ -24,7 +24,8 @@ public class FleshySprout extends FleshyTree {
     }
 
     /**
-     * Spawns a Slime if a worker is beside the sprout.
+     * Spawns an Undead if a worker is beside the sprout on the 99-Deprecated Moon
+     * Spawns a Slime if a worker is beside the sprout on the 20-Overflow Moon
      *
      * @param location the current location of the sprout
      * @return true if the sprout performed an action
